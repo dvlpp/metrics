@@ -1,0 +1,26 @@
+{
+    "name": "dvlpp/metrics",
+    "description": "Metrics Package for Laravel 5",
+    "keywords": ["analytics", "metrics", "laravel"],
+    "homepage": "http://test.com",
+    "authors": [
+        {
+            "name": "Rémi Collin",
+            "email": "rcollin2@gmail.com"
+        }
+    ],
+    "require": {
+        "illuminate/support": "~5.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.5",
+        "laravel/laravel": "~5.2"
+    },
+    "autoload": {
+       "psr-4": {
+         "Dvlpp\\Metrics\\": "src/Metrics"
+        }
+    },
+    "license": "MIT"
+    
+}
