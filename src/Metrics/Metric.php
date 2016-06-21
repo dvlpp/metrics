@@ -6,6 +6,18 @@ use Carbon\Carbon;
 
 class Metric
 {
+    const HOURLY = 1;
+    const DAILY = 2;
+    const MONTHLY = 3;
+    const YEARLY = 4;
+
+    /**
+     * Type of the Metric (hourly, daily, etc..)
+     * 
+     * @var integer
+     */
+    protected $type;
+
     /**
      * Period start
      * 
@@ -34,11 +46,12 @@ class Metric
      */
     protected $count;
 
-    public static function create(TimeInterval $interval, array $statistics, count)
+    public static function create(TimeInterval $interval, array $statistics, $count)
     {
         $metric = new static;
         $metric->setStart($interval->start());
         $metric->setEnd($interval->end());
+        $metric->setType($interval->type());
         $metric->setStatistics($statistics);
         $metric->setCount($count);
     }
@@ -56,6 +69,17 @@ class Metric
         $metric->setEnd($data['end']);
         $metric->setStatistics($data['statistics']);
         $metric->setCount($data['count']);
+        $metric->setType($data['type']);
+    }
+
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     public function setStart(Carbon $start)
@@ -101,6 +125,7 @@ class Metric
     public function toArray()
     {
         return [
+            'type' => $this->type,
             'start' => $this->start,
             'end' => $this->end,
             'count' => $this->count,

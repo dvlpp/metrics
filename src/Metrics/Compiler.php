@@ -11,9 +11,21 @@ class Compiler
      */
     protected $analyzers;
 
-    public function __construct(array $analyzers)
+    /**
+     * @var array
+     */
+    protected $consoliders;
+
+    /**
+     * @var string
+     */
+    protected $type;
+
+    public function __construct(array $analyzers, array $consoliders, $type)
     {
         $this->analyzers = $analyzers;
+        $this->consoliders = $consoliders;
+        $this->type = $type;
     }
 
     /**
@@ -27,8 +39,18 @@ class Compiler
         $statistics = [];
 
         foreach($this->analyzers as $analyzer) {
-            $statistics[get_class($analyzer)] = $analyzer->compile($visits);
+            if($analyzer->getPeriod() == $this->type) {
+                $statistics[get_class($analyzer)] = $analyzer->compile($visits);
+            }
         }
+
+        
+
+        /*foreach($this->analyzers as $analyzer) {
+            if($analyzer->getPeriod() == $this->type) {
+                $statistics[get_class($analyzer)] = $analyzer->compile($visits);
+            }
+        }*/
 
         return $statistics;
     }

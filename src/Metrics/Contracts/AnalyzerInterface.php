@@ -1,10 +1,10 @@
 <?php
 
-namespace Dvlpp\Metrics\Analyzers;
+namespace Dvlpp\Metrics\Contracts;
 
 use Illuminate\Support\Collection;
 
-interface CompilerInterface {
+interface AnalyzerInterface {
 
     public function compile(Collection $visits);
 

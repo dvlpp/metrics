@@ -3,6 +3,7 @@
 namespace Dvlpp\Metrics\Repositories\Eloquent;
 
 use Dvlpp\Metrics\Metric;
+use Dvlpp\Metrics\TimeInterval;
 use Dvlpp\Metrics\Repositories\MetricRepository;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
@@ -29,17 +30,27 @@ class MetricEloquentRepository implements MetricRepository
     }
 
     /**
-     * Return the metric record for the given time interval
+     * Return the single object corresponding to the time interval
+     *
+     * @param  TimeInterval $interval
+     * @return  Metric
+     */
+    public function find(TimeInterval $interval)
+    {
+        $metrics = $this->metric->where('start', $interval->start())->where('end', $interval->end())->first();
+    }
+
+    /**
+     * Return all the metric records for the given time interval
      * 
-     * @param  Carbon $start
-     * @param  Carbon $end  
+     * @param  TimeInterval $interval
      * @return Collection
      */
     public function getTimeInterval(TimeInterval $interval)
     {
-        $metric = $this->metric->where('start', $interval->start())->where('end', $interval->end())->first();
+        $metrics = $this->metric->where('start', '>=', $interval->start())->where('end', '<', $interval->end())->get();
         
-        return $this->convertObject($metric);
+        return $this->convertCollection($metrics);
     }
 
     /**
@@ -50,8 +61,8 @@ class MetricEloquentRepository implements MetricRepository
      */
     public function hasTimeInterval(TimeInterval $interval)
     {
-        $metric = $this->metric->where('start', $interval->start())->where('end', $interval->end())->first();
-
+        $metric = $this->find($interval);
+        
         return $metric ? true : false;
     }
 

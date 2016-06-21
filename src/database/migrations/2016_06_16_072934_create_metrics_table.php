@@ -14,6 +14,7 @@ class CreateMetricsTable extends Migration
     {
         Schema::create('metric_metrics', function(Blueprint $table) {
             $table->increments('id');
+            $table->integer('type')->unsigned();
             $table->datetime('starts');
             $table->datetime('ends');
             $table->bigInteger('count')->unsigned();

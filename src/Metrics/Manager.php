@@ -8,16 +8,11 @@ use Illuminate\Foundation\Application;
 use Dvlpp\Metrics\Exceptions\TrackingException;
 use Dvlpp\Metrics\Repositories\MetricRepository;
 use Dvlpp\Metrics\Repositories\VisitRepository;
+use Dvlpp\Metrics\Contracts\AnalyzerInterface;
 use Dvlpp\Metrics\Contracts\ConsoliderInterface;
 
 class Manager
-{
-    /*public static const Yearly = 0;
-    public static const Monthly = 1;
-    public static const Weekly = 2;
-    public static const Daily = 3;
-    public static const Hourly = 4;*/
-    
+{   
     /**
      * Application instance
      * 
@@ -62,13 +57,22 @@ class Manager
      */
     public function updateMetrics()
     {
-        $visitRepository = $this->app->make(VisitRepository::class);
-        
-        $firstVisit = $visitRepository->first();
+        return $this->getUpdater()->update();
+    }
 
-        $interval = new TimeInterval($firstVisit->getDate(), Carbon::now());
-
-        $metricRepository = $this->app->make(MetricRepository::class);
+    /**
+     * Instantiate & Return Updater
+     * 
+     * @return Update
+     */
+    public function getUpdater()
+    {
+        return new Updater(
+            $this->app->make(MetricRepository::class), 
+            $this->app->make(VisitRepository::class),
+            $this->instantiateAnalyzers(),
+            $this->instantiateConsoliders()
+        );
     }
 
     /**
@@ -82,11 +86,22 @@ class Manager
         $this->analyzers[] = $analyzer;
     }
     
+    /**
+     * Add a consolider class
+     * 
+     * @param string $consolider 
+     * @return void
+     */
     public function registerConsolider($consolider)
     {
         $this->consoliders[] = $consolider;
     }
 
+    /**
+     * [track description]
+     * @param  Visit  $visit [description]
+     * @return [type]        [description]
+     */
     public function track(Visit $visit)
     {
         if($this->visit != null) {
@@ -135,51 +150,13 @@ class Manager
     }
 
     /**
-     * Compile a metric object for the given time interval
-     * 
-     * @param  TimeInterval $interval
-     * @return Metric
-     */
-    protected function compileTimeInteval(TimeInterval $interval)
-    {
-        $repository = $this->app->make(VisitRepository::class);
-        $visits = $repository->getTimeInterval($interval);
-
-        $compiler = new Compiler($this->instantiateAnalyzers());
-        $statistics = $compiler->compile($visits);
-
-        return Metric::create($interval, $statistics, count($visits));
-    } 
-
-    /**
-     * Run all consoliders on given time interval
-     * 
-     * @param  TimeInterval $interval
-     * @return  Metric
-     */
-    protected function consolidateTimeInterval(TimeInterval $interval)
-    {
-        $repository = $this->app->make(MetricRepository::class);
-        $metrics = $repository->getTimeInterval($interval);
-
-        $consolider = new Consolider($this->instantiateConsoliders());
-        $statistics = $consolider->consolidate($metrics);
-
-        $count = $metrics->reduce(function($previous, $item) {
-            return $previous + $item->getCount();
-        });
-
-        return Metric::create($interval, $statistics, $count);
-    }
-
-    /**
      * Instantiate all registered analyzers & consoliders
      * 
      * @return array
      */
     protected function instantiateConsoliders()
     {
-        $allConsoliders = array_merge($this->analyzer, $this->consoliders);
+        $allConsoliders = array_merge($this->analyzers, $this->consoliders);
 
         $consoliders = [];
 
@@ -192,6 +169,8 @@ class Manager
 
             $consoliders[$consolider] = $consoliderObject;
         }
+
+        return $consoliders;
     }
 
     /**
@@ -206,7 +185,7 @@ class Manager
         foreach($this->analyzers as $analyzer) {
             $analyzerObject = $this->app->make($analyzer);
 
-            if(! $analyzerObject instanceof Analyzer) {
+            if(! $analyzerObject instanceof AnalyzerInterface) {
                 throw new InvalidArgumentException("Invalid Analyzer Object");
             }
 
