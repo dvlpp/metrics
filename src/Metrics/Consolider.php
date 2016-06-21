@@ -22,7 +22,7 @@ class Consolider
      * @param  Collection $metrics
      * @return array
      */
-    public function compile(Collection $metrics)
+    public function consolidate(Collection $metrics)
     {
         $statistics = [];
 

@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 class MetricEloquentRepository implements MetricRepository
 {
+    /**
+     * @var MetricModel
+     */
     protected $metric;
 
     public function __construct()
@@ -15,6 +18,11 @@ class MetricEloquentRepository implements MetricRepository
         $this->metric = new MetricModel;
     }
 
+    /**
+     * Return all metric rows
+     * 
+     * @return Collection
+     */
     public function all()
     {
         return $this->convertCollection($this->metric->all());
@@ -30,17 +38,40 @@ class MetricEloquentRepository implements MetricRepository
     public function getTimeInterval(TimeInterval $interval)
     {
         $metric = $this->metric->where('start', $interval->start())->where('end', $interval->end())->first();
+        
         return $this->convertObject($metric);
     }
 
+    /**
+     * Return true if a time interval exists
+     * 
+     * @param  TimeInterval $interval 
+     * @return boolean             
+     */
     public function hasTimeInterval(TimeInterval $interval)
     {
+        $metric = $this->metric->where('start', $interval->start())->where('end', $interval->end())->first();
 
+        return $metric ? true : false;
     }
 
+    /**
+     * Store a Metric object
+     * @param  Metric $metric 
+     * @return  void
+     */
     public function store(Metric $metric)
     {
+        $attributes = $metric->toArray();
 
+        if(isset($attributes['id']) && $attributes['id'] !== null) {
+            return $this->saveExisting($attributes);
+        }
+        else {
+            unset($attributes['id']);
+        }
+
+        $metric = VisitModel::create($attributes);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Metrics;
 
+use Carbon\Carbon;
 use InvalidArgumentException;
 use Illuminate\Foundation\Application;
 use Dvlpp\Metrics\Exceptions\TrackingException;
@@ -64,13 +65,10 @@ class Manager
         $visitRepository = $this->app->make(VisitRepository::class);
         
         $firstVisit = $visitRepository->first();
-        $lastVisit = $visitRepository->last();
 
-        $interval = new TimeInterval($firstVisit->getDate(), $lastVisit->getDate());
+        $interval = new TimeInterval($firstVisit->getDate(), Carbon::now());
 
         $metricRepository = $this->app->make(MetricRepository::class);
-
-        
     }
 
     /**

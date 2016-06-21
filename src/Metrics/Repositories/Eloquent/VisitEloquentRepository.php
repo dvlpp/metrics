@@ -10,6 +10,9 @@ use Dvlpp\Metrics\Repositories\VisitRepository;
 
 class VisitEloquentRepository implements VisitRepository
 {
+    /**
+     * @var VisitModel
+     */
     protected $visit;
 
     public function __construct()
@@ -17,16 +20,31 @@ class VisitEloquentRepository implements VisitRepository
         $this->visit = new VisitModel;
     }
 
+    /**
+     * Get all records
+     * 
+     * @return Collection
+     */
     public function all()
     {
         return $this->convertCollection($this->visit->all());
     }
 
+    /**
+     * Get the oldest visit
+     * 
+     * @return Visit
+     */
     public function first()
     {
         return $this->convertObject($this->visit->orderBy('date')->first());
     }
 
+    /**
+     * Get the newest visit
+     * 
+     * @return Visit
+     */
     public function last()
     {
         return $this->convertObject($this->visit->orderBy('date','desc')->first());
