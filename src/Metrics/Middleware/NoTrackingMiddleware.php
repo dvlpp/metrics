@@ -3,19 +3,15 @@
 namespace Dvlpp\Metrics\Middleware;
 
 use Closure;
-use Dvlpp\Metrics\Visit;
 use Dvlpp\Metrics\Manager;
 
-class MetricMiddleware
+class NoTrackingMiddleware
 {
-    /**
-     * @var Manager
-     */
-    protected $metricManager;
+    protected $manager;
 
-    public function __construct(Manager $metricManager)
+    public function __construct(Manager $manager)
     {
-        $this->metricManager = $metricManager;
+        $this->manager = $manager;
     }
 
     /**
@@ -28,8 +24,7 @@ class MetricMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $this->metricManager->track(Visit::createFromRequest($request));
-        
+        $this->manager->setTrackingOff();
         return $next($request);
     }
 }

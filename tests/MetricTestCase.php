@@ -1,5 +1,8 @@
 <?php
 
+use Faker\Factory;
+use Dvlpp\Metrics\Visit;
+use Dvlpp\Metrics\Repositories\VisitRepository;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Session\Middleware\StartSession; 
@@ -10,10 +13,18 @@ use Illuminate\Database\Eloquent\Factory as EloquentFactory;
 use Illuminate\Filesystem\ClassFinder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Collection;
 
 abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
 {
     use InteractsWithDatabase;
+
+    protected $faker;
+
+    public function __construct()
+    {
+        $this->faker = Faker\Factory::create();
+    }
 
     public function setUp()
     {
@@ -90,7 +101,79 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         Model::reguard();
     }
 
+    // Generate fake visits we can parse for metrics
+    // (don't create them in database)
+    protected function generateVisits($number, $timeInterval = '-1 week', $attributes = [])
+    {
+        $visits = [];
+        for($x=0;$x<$number;$x++) {
+            $visits[] = $this->makeVisit($attributes, $timeInterval);
+        }   
+        return new Collection($visits);    
+    }
+
+    // Generate fake visits and save them in database
+    protected function createVisits($number, $timeInterval = '-1 week', $attributes = [])
+    {
+        $repo = $this->app->make(VisitRepository::class);
+        $visits = $this->generateVisits($number, $timeInterval, $attributes);
+        $visits->map(function($item) use ($repo) {
+            $repo->store($item);
+        });
+    }
+
+    /**
+     * Generate some realistic sitemap from a website
+     * 
+     * @return array
+     */
+    protected function getUrlStack()
+    {
+        return [
+            "/",
+            "/artists",
+            "/artists/john_zorn",
+            "/artists/sphongle",
+            "/artists/nirvana",
+            "/artists/pj_harvey",
+            '/artists/mano_solo',
+            "/artists/metallica",
+            "/artists/lou_reed",
+            "/movies",
+            '/movies/berlin_calling',
+            '/movies/titanic',
+            '/movies/mulholland_drive',
+            '/movies/be_kind_rewind',
+            '/movies/transpotting',
+        ];
+    }
  
+    /**
+     * Build a visit record. Attributes overrides generated data
+     * 
+     * @param  array  $attributes   manually set some attribute
+     * @param  string $startDate    the time interval in the past to create the visits
+     * @return Visit             
+     */
+    protected function makeVisit(array $attributes = [], $startDate = '-1 year')
+    {
+        $faker = $this->faker;
+        $data = [
+            'user_id' => null,
+            'url' => $faker->randomElement($this->getUrlStack()),
+            'user_agent' => $faker->userAgent,
+            'ip' => $faker->randomElement([$faker->ipv4, $faker->ipv6]),
+            'date' => $faker->dateTimeBetween($startDate),
+            'cookie' => $faker->sha256,
+            'actions' => [],
+            'custom' => [],
+        ];
+        foreach($attributes as $key => $value) {
+            $data[$key] = $value;
+        }
+
+        return Visit::createFromArray($data);
+    }
 }
 
 // Test debug helper

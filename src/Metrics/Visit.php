@@ -2,35 +2,279 @@
 
 namespace Dvlpp\Metrics;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Support\Arrayable;
 
-class Visit {
+class Visit implements Arrayable
+{
+    /**
+     * id of the record in database
+     * 
+     * @var string
+     */
+    protected $id;
 
     /**
-     * Or user id ?
-     * @var [type]
+     * @var string
      */
-    protected $user;
+    protected $user_id;
+   
+    /**
+     * IP of the visit
+     * 
+     * @var string
+     */
+    protected $ip;
+
+    /**
+     * Full user agent of the visit
+     * 
+     * @var string
+     */
+    protected $user_agent;
+
+    /**
+     * The laravel session cookie, if set
+     * 
+     * @var string
+     */
+    protected $cookie;
+
+    /**
+     * The full url of the visit (without query string)
+     * 
+     * @var string
+     */
+    protected $url;
+
+    /**
+     * Actions objets
+     * 
+     * @var ActionCollection
+     */
+    protected $actions;
 
     /**
      * Custom data to be added 
      * 
      * @var array
      */
-    protected $customData = [];
+    protected $custom = [];
 
+    /**
+     * DateTime of the visit
+     *
+     * @var Carbon
+     */
+    protected $date;
 
-    public function __construct(Request $request)
+    public function __construct()
     {
-        $this->initFromRequest($request);
+        $this->actions = new ActionCollection;
     }
 
-    protected function initFromRequest(Request $request)
+    /**
+     * Create a Visit instance from a Request object
+     * 
+     * @param  Request $request
+     * @return Visit
+     */
+    public static function createFromRequest(Request $request)
     {
-        
+        $visit = new Static;
+        $visit->date = Carbon::now();
+        $visit->url = "/".$request->getUri();
+        $visit->ip = $request->ip();
+        $visit->cookie = $request->cookies->get('laravel_session');
+        $visit->user_agent = $request->server('HTTP_USER_AGENT');
+        return $visit;
     }
 
+    /**
+     * Create a Visit instance from an array. We'll use this Essentially
+     * to reconstruct a Visit object from a database row.
+     * 
+     * @param  array  $data
+     * @return Visit
+     */
+    public static function createFromArray(array $data)
+    {
+        $visit = new Static;
+        if (isset($data['id'])) {
+            $visit->id = $data['id'];    
+        }
+        $visit->ip = $data['ip'];
+        $visit->user_agent = $data['user_agent'];
+        $visit->user_id = $data['user_id'];
+        $visit->custom = $data['custom'];
+        $visit->url = $data['url'];
+        $visit->date = $data['date'];
+        $visit->cookie = $data['cookie'];
+        foreach($data['actions'] as $action) {
+            $visit->addAction(unserialize($action));
+        }
+        return $visit;
+    }
 
+    /**
+     * Set the user id for this record
+     * 
+     * @param  int $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->user_id = $userId;
+    }
 
+    /**
+     * Get the user id
+     *
+     * @return string
+     */
+    public function userId()
+    {
+        return $this->user_id;
+    }
 
+    /**
+     * Get the visited url
+     * 
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    /**
+     * Get request IP
+     * 
+     * @return string
+     */
+    public function getIp()
+    {
+        return $this->ip;
+    }
+
+    /**
+     * Return laravel cookie
+     * 
+     * @return string
+     */
+    public function getCookie()
+    {
+        return $this->cookie;
+    }
+
+    /**
+     * Return date
+     * 
+     * @return Carbon\Carbon
+     */
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    /**
+     * Return user agent 
+     * 
+     * @return string
+     */
+    public function getUserAgent()
+    {
+        return $this->userAgent;
+    }
+
+    /**
+     * Get actions on this visit
+     * 
+     * @return ActionCollection
+     */
+    public function actions()
+    {
+        return $this->actions;
+    }
+
+    /**
+     * Attach an action to the visit
+     * 
+     * @param Action $action [description]
+     * @return Visit
+     */
+    public function addAction(Action $action)
+    {
+        $this->actions->push($action);
+        return $this;
+    }
+
+    /**
+     * Add a custom tracking value to the object
+     * 
+     * @param string $key 
+     * @param mixed $value
+     */
+    public function setCustomValue($key, $value)
+    {   
+        $this->custom[$key] = $value;
+    }
+
+    /**
+     * Get a custom value from the object
+     * 
+     * @param  string $key
+     * @return mixed
+     */
+    public function getCustomValue($key)
+    {
+        return $this->custom[$key];
+    }
+
+    /**
+     * Check if a custom value exists
+     * 
+     * @param  string  $key 
+     * @return boolean
+     */
+    public function hasCustomValue($key)
+    {
+        return array_key_exists($key, $this->custom);
+    }
+
+    /**
+     * Convert object to array, including serialisation of actions
+     * 
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'ip' => $this->ip,
+            'user_id' => $this->user_id,
+            'user_agent' =>  $this->user_agent,
+            'actions' => $this->getSerializedActions(),
+            'custom' => $this->custom,
+            'cookie' => $this->cookie,
+            'url' => $this->url,
+            'date' => $this->date,
+        ];
+    }
+
+    /**
+     * Get actions as serialized objects
+     * 
+     * @return array
+     */
+    protected function getSerializedActions()
+    {
+        $actions = [];
+
+        foreach($this->actions as $action) {
+            $actions[] = serialize($action);
+        }
+
+        return $actions;
+    }
 }
