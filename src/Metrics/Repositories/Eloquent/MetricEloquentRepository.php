@@ -37,7 +37,31 @@ class MetricEloquentRepository implements MetricRepository
      */
     public function find(TimeInterval $interval)
     {
-        $metrics = $this->metric->where('start', $interval->start())->where('end', $interval->end())->first();
+        $metric = $this->metric->where('start', $interval->start())->where('end', $interval->end())->first();
+
+        if($metric) {
+            return $this->toObject($metric);
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Return first metric
+     * 
+     * @return Metric 
+     */
+    public function first()
+    {
+        $metric = $this->metric->orderBy('start', 'asc')->first();
+
+        if($metric) {
+            return $this->toObject($metric);
+        }
+        else {
+            return null;
+        }
     }
 
     /**

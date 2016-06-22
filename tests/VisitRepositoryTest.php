@@ -31,13 +31,12 @@ class VisitRepositoryTest extends MetricTestCase
     /** @test */
     public function we_can_query_visits_in_a_time_interval()
     {
-        $this->createVisits(1000, '-1 hour');
+        $this->createVisits(100, '-1 hour');
 
-        $start = Carbon::now()->subMinutes(60);
+        $start = Carbon::now()->subMinutes(61);
         $end = Carbon::now();
 
-        $interval = new TimeInterval($start, $end);
-        $this->assertEquals(1000, count($this->repository->getTimeInterval($interval)));
+        $this->assertEquals(100, count($this->repository->getTimeInterval($start,$end)));
     }
 
     /** @test */

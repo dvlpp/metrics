@@ -12,7 +12,7 @@ interface VisitRepository {
 
     public function store(Visit $visit);
 
-    public function getTimeInterval(TimeInterval $interval);
+    public function getTimeInterval(Carbon $start, Carbon $end);
 
     public function first();
 

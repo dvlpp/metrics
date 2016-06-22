@@ -14,7 +14,7 @@ class TimeInterval {
 
     protected $type;
 
-    public function __construct(Carbon $start, Carbon $end, $type = null)
+    public function __construct(Carbon $start, Carbon $end, $type)
     {
         // We'll use copy() to make sure no other portion of the code
         // will modify the Carbon objects
@@ -55,39 +55,9 @@ class TimeInterval {
      * @param  Carbon $end 
      * @return  TimeInterval
      */
-    protected function createInterval($start, $end, $type = null)
+    protected function createInterval($start, $end, $type)
     {
         return new static($start, $end, $type);
-    }
-
-    /**
-     * Get the time interval for the current year
-     * 
-     * @return TImeInterval
-     */
-    public function currentYear()
-    {
-        return new static($this->end->copy()->startOfYear(), $this->end);
-    }
-
-    /**
-     * Get the time interval for the current year
-     * 
-     * @return TImeInterval
-     */
-    public function currentMonth()
-    {
-         return new static($this->end->copy()->startOfMonth(), $this->end);
-    }
-
-    /**
-     * Get the time interval for the current year
-     * 
-     * @return TImeInterval
-     */
-    public function currentDay()
-    {
-         return new static($this->end->copy()->startOfDay(), $this->end);
     }
 
     /**
@@ -97,154 +67,56 @@ class TimeInterval {
      */
     public function divide()
     {
-        switch($this->type) {
+        if($this->type == Metric::HOURLY) {
+            return [];
+        }
+        else {
+            return $this->divideByType($this->type);
+        }
+    }
+
+    public function divideByType($type)
+    {
+        $start = $this->start->copy();
+
+        switch($type) {
             case Metric::YEARLY:
-                return $this->months();
+                $basePeriod = 'year';
+                $dividePeriod = 'month';
+                break;
             case Metric::MONTHLY:
-                return $this->days();
+                $basePeriod = 'month';
+                $dividePeriod = 'day';
+                break;
             case Metric::DAILY:
-                return $this->hours();
-            case Metric::HOURLY:
-                return [];
+                $basePeriod = 'day';
+                $dividePeriod = 'hour';
         }
 
-        $years = $this->years();
-        if(count($years) > 0) {
-            return $years;
-        }
-        $months = $this->months();
-        if(count($months) > 0) {
-            return $months;
-        }
-        $days = $this->days();
-        if(count($days) > 0) {
-            return $days;
-        }
-        $hours = $this->hours();
-        if(count($hours) > 0) {
-            return $hours;
-        }
-        return [];
-    }
+        $endMethod = 'endOf'.ucfirst($dividePeriod);
+        $addMethod = 'add'.ucfirst($dividePeriod);
 
-    /**
-     * Get the remaining of a period after the largest divide() operation possibles
-     * eg : if we have a period of a year and a half, it will return the later 
-     * 
-     * @return TimePeriod / null
-     */
-    public function trail()
-    {
-        // Full period, which have a type assigned won't have trails
-        if($this->type > 0) {
-            return null;
-        }
-
-        if(count($this->years()) > 0) {
-            return $this->currentYear();
-        }
-        if(count($this->months()) > 0) {
-            return $this->currentMonth();
-        }
-        if(count($this->days()) > 0) {
-            return $this->currentDay();
-        }
-        return null;
-    }
-
-    /**
-     * Return an array of TimeInterval objects corresponding to all full hours in the parent
-     * period 
-     * 
-     * @return array
-     */
-    public function hours()
-    {
-        $hours = $this->end->copy()->addSecond()->diffInHours($this->start);
+        $base = $start->$basePeriod;
 
         $intervals = [];
 
-        if($hours > 0) {
-            for($x = 1; $x <= $hours; $x ++) {
-                $date = $this->end->copy()->subHours($x);
-                $start = $this->startOfHour($date->copy());
-                $end = $this->endOfHour($date->copy());
-                $intervals[] = $this->createInterval($start, $end, Metric::HOURLY);
+         // We'll just dumbly add time units and create interval until the base period
+         // changed, so we'll let Carbon handle different month lenghts, and timezone, 
+         // DST behaviour for us.
+        while($start->$basePeriod == $base) {
+            
+
+            // Compensating for the missing Carbon endOfHour() method...
+            if($type == Metric::DAILY) {
+                $end = $this->endOfHour($start->copy());
             }
-        }
-        
-        return $intervals;
-    }
-
-     /**
-     * Return an array of TimeInterval objects corresponding to all full days in the parent
-     * period 
-     * 
-     * @return array
-     */
-    public function days()
-    {
-        $days = $this->end->copy()->addSecond()->diffInDays($this->start);
-
-        $intervals = [];
-
-        if($days > 0) {
-            for($x = 1; $x <= $days; $x ++) {
-                $date = $this->end->copy()->subDays($x);
-                $start = $date->copy()->startOfDay();
-                $end = $date->copy()->endOfDay();
-                $intervals[] = $this->createInterval($start, $end, Metric::DAILY);
+            else {
+                $end = $start->copy()->$endMethod();
             }
+            $intervals[] = new TimeInterval($start, $end, $type - 1);
+            $start->$addMethod();
         }
-        
-        return $intervals;
-    }
 
-     /**
-     * Return an array of TimeInterval objects corresponding to all full month in the parent
-     * period 
-     * 
-     * @return array
-     */
-    public function months()
-    {
-        $months = $this->end->copy()->addSecond()->diffInMonths($this->start);
-
-        $intervals = [];
-
-        if($months > 0) {
-            for($x = 1; $x <= $months; $x ++) {
-                $date = $this->end->copy()->subMonths($x);
-                $start = $date->copy()->startOfMonth();
-                $end = $date->copy()->endOfMonth();
-                $intervals[] = $this->createInterval($start, $end, Metric::MONTHLY);
-            }
-        }
-        
-        return $intervals;
-    }
-
-     /**
-     * Return an array of TimeInterval objects corresponding to all full years in the parent
-     * period 
-     * 
-     * @return array
-     */
-    public function years()
-    {
-        $years = $this->end->copy()->addSecond()->diffInYears($this->start);
-
-        $intervals = [];
-
-        if($years > 0) {
-            for($x = 1; $x <= $years; $x ++) {
-                $date = $this->end->copy()->subYears($x);
-                $start = $date->copy()->startOfYear();
-                $end = $date->copy()->endOfYear();
-                $intervals[] = $this->createInterval($start, $end, Metric::YEARLY);
-            }
-        }
-        
         return $intervals;
     }
 

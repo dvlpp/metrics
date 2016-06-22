@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Metrics\Repositories\Eloquent;
 
+use Carbon\Carbon;
 use Dvlpp\Metrics\TimeInterval;
 use Dvlpp\Metrics\Visit;
 use Illuminate\Support\Collection;
@@ -53,12 +54,13 @@ class VisitEloquentRepository implements VisitRepository
     /**
      * Return all visits for a given interval
      * 
-     * @param  TimeInterval $interval
+     * @param  Carbon $start
+     * @param  Carbon $end
      * @return Collection
      */
-    public function getTimeInterval(TimeInterval $interval)
+    public function getTimeInterval(Carbon $start, Carbon $end)
     {
-        $visits = $this->visit->where('date', ">=", $interval->start())->where('date', "<=", $interval->end())->get();
+        $visits = $this->visit->where('date', ">=", $start)->where('date', "<=", $end)->get();
 
         return $this->convertCollection($visits);
     }

@@ -3,6 +3,7 @@
 namespace Dvlpp\Metrics;
 
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Repositories\MetricRepository;
 use Dvlpp\Metrics\Repositories\VisitRepository;
 
@@ -37,11 +38,15 @@ class Updater
 
     public function update()
     {
-        $dueIntervals = $this->getDueIntervals();
+        $start = $this->getPeriodStart();
+        $end = $this->getPeriodEnd();
 
-        $firstVisit = $this->visits->first();
+        // First, we'll get the complete period in the timeframe, with only the 
+        // top level periods (meaning we'll only have the Year TimeInterval of a complete
+        // year, not the month TimeInterval the years is composed)
+        $completePeriods = $this->getCompletePeriods($start, $end);
 
-        $baseInterval = new TimeInterval($firstVisit->getDate(), Carbon::now());
+
 
 
         //$this->processAnalyzes();
@@ -50,32 +55,132 @@ class Updater
         //$metric = $this->compileTimeInterval($year, Metric::YEARLY);
     }
 
-   
-    public function getDueIntervals(TimeInterval $baseInterval, array $stack = [])
+    public function parseForMissingMetrics($periods)
     {
-        if ($baseInterval->type() !== null) {
+        $missingMetrics = [];
         
-            if ($this->metrics->hasTimeInterval($baseInterval)) {
-                return $stack;
+        foreach($periods as $period) {
+            if(! $this->metrics->find($period)) {
+                
+                $missingMetrics[] = $period;
+                if($period->type() != Metric::HOURLY) {
+                    $missingMetrics = array_merge($missingMetrics, $this->parseForMissingMetrics($period->divide()));
+                }
             }
-            $stack[] = $baseInterval; 
         }
 
-        $subIntervals = $baseInterval->divide();
-        
-        foreach($subIntervals as $subInterval) {
-            $stack = $this->getDueIntervals($subInterval, $stack);
-        }
-
-        $trail = $baseInterval->trail();
-
-        if($trail) {
-            $stack = $this->getDueIntervals($trail, $stack);
-        }
-
-        return $stack;
+        return $missingMetrics;
     }
 
+    /**
+     * Return the completed years, months, day, hours
+     * 
+     * @param  Carbon $start 
+     * @param  Carbon $end  
+     * @return  Collection
+     */
+    public function getCompletePeriods(Carbon $start, Carbon $end)
+    {
+        $periods = [];
+
+        $periods = array_merge($periods, $this->getCompletePeriodsByType($start, $end, Metric::YEARLY));
+        $start = $end->copy()->startOfYear();
+        $periods = array_merge($periods, $this->getCompletePeriodsByType($start, $end, Metric::MONTHLY));
+        $start = $end->copy()->startOfMonth();
+        $periods = array_merge($periods, $this->getCompletePeriodsByType($start, $end, Metric::DAILY));
+        $start = $end->copy()->startOfDay();
+        $periods = array_merge($periods, $this->getCompletePeriodsByType($start, $end, Metric::HOURLY));
+        
+        return new Collection($periods);
+    }
+
+    /**
+     * Get top-level complete periods for the given $start & $end
+     * 
+     * @param  Carbon $start
+     * @param  Carbon $end  
+     * @param  integer $type  
+     * @return  array
+     */
+    protected function getCompletePeriodsByType(Carbon $start, Carbon $end, $type)
+    {
+        switch($type) {
+            case Metric::YEARLY:
+                $diff = $end->diffInYears($start);
+                break;
+            case Metric::MONTHLY:
+                $diff = $end->diffInMonths($start);
+                break;
+            case Metric::DAILY:
+                $diff = $end->diffInDays($start);
+                break;
+            case Metric::HOURLY:
+                $diff = $end->diffInHours($start);
+        }
+       
+        $intervals = [];
+
+        for($x = 0; $x < $diff; $x++) {
+
+            switch ($type) {
+                case Metric::YEARLY:
+                    $intervalStart = $start->copy()->addYears($x)->startOfYear();
+                    $intervalEnd = $intervalStart->copy()->endOfYear();
+                    break;
+                case Metric::MONTHLY:
+                    $intervalStart = $start->copy()->addMonths($x)->startOfMonth();
+                    $intervalEnd = $intervalStart->copy()->endOfMonth();
+                    break;
+                case Metric::DAILY:
+                    $intervalStart = $start->copy()->addDays($x)->startOfDay();
+                    $intervalEnd = $intervalStart->copy()->endOfDay();
+                    break;
+                case Metric::HOURLY:
+                    $intervalStart = $start->copy()->addHours($x)->minute(0)->second(0);
+                    $intervalEnd = $intervalStart->copy()->minute(59)->second(59);
+            }
+            
+            $intervals[] = new TimeInterval($intervalStart, $intervalEnd, $type);    
+        }
+
+        return $intervals;
+    }
+
+    /**
+     * Get the start date for the Metric processing period
+     * 
+     * @return Carbon
+     */
+    public function getPeriodStart()
+    {
+        // First we'll check if metrics exists, and if so we'll make the first metric in time
+        // the start of our reference period. 
+        if($firstMetric = $this->metrics->first()) {
+            $start = $firstMetric->getStart();
+        }
+        else {  
+            $start = $this->visits->first()->getDate();
+        }
+
+        if($start) {
+            return $start->startOfYear();
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the end of the processing period, which will be always the end of the last
+     * hour.
+     * 
+     * @return Carbon
+     */
+    public function getPeriodEnd()
+    {
+        return Carbon::now()->subHour()->minute(59)->second(59);
+    }
+   
     /**
      * Compile a metric object for the given time interval
      * 
