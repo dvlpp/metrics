@@ -62,11 +62,10 @@ class UpdaterTest extends MetricTestCase
     }
 
     /** @test */
-    public function we_can_get_all_due_intervals()
+    public function we_can_update_metrics()
     {
-        //$this->createVisits(1000, '-1 year');
-        //$period = new TimeInterval(Carbon::now()->subDay()->startOfDay(), Carbon::now()->startOfDay());
-        //dd($this->updater->getDueIntervals($period));
-    }
+        $this->createVisits(1000, '-1 week');
 
+        $this->updater->update();
+    }
 }

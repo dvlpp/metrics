@@ -46,15 +46,43 @@ class Updater
         // year, not the month TimeInterval the years is composed)
         $completePeriods = $this->getCompletePeriods($start, $end);
 
+        // Then, we'll pipe them to a method that will recursively check into complete
+        // periods to find potentially missing smaller units. If a larger unit is present,
+        // it will assume the smaller units are present as well. 
+        $missingPeriods = new Collection($this->parseForMissingMetrics($completePeriods));
 
+        // Now, we'll have to sort them by type as we want to process the smaller
+        // unit first.
+        $sortedPeriods = $missingPeriods->sort(function ($item) {
+            return $item->type();
+        });
 
+        foreach ($sortedPeriods as $period) {
+            $metric = $this->process($period);
 
-        //$this->processAnalyzes();
-        //$this->processConsolidations();
+            $this->metrics->store($metric);
+        }
 
-        //$metric = $this->compileTimeInterval($year, Metric::YEARLY);
+        return true;
     }
 
+    /**
+     * Process  a metric for a given period
+     * 
+     * @param  TimeInterval $period 
+     * @return  Metric
+     */
+    protected function process(TimeInterval $period)
+    {
+
+    }
+
+    /**
+     * Parse for metrics that are not in DB for a Period. 
+     * 
+     * @param array $periods
+     * @return Collection
+     */
     public function parseForMissingMetrics($periods)
     {
         $missingMetrics = [];
@@ -188,7 +216,7 @@ class Updater
      * @param  string $type
      * @return Metric
      */
-    protected function compileTimeInterval(TimeInterval $interval, $type)
+    /*protected function compileTimeInterval(TimeInterval $interval, $type)
     {
         $compiler = new Compiler($this->analyzers, $type);
         $consolider = new Consolider($this->consoliders, $type);
@@ -199,7 +227,7 @@ class Updater
         $statistics = array_merge($compiler->compile($visits), $consolider->consolidate($metrics));
 
         return Metric::create($type, $interval, $statistics, count($visits));
-    } 
+    } */
 
     /**
      * Run all consoliders on given time interval
@@ -207,7 +235,7 @@ class Updater
      * @param  TimeInterval $interval
      * @return  Metric
      */
-    protected function consolidateTimeInterval(TimeInterval $interval, $type)
+    /*protected function consolidateTimeInterval(TimeInterval $interval, $type)
     {
         $repository = $this->app->make(MetricRepository::class);
         
@@ -220,5 +248,5 @@ class Updater
         });
 
         return Metric::create($interval, $statistics, $count);
-    }
+    }*/
 }
