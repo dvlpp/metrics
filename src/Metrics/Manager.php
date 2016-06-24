@@ -156,6 +156,7 @@ class Manager
      */
     protected function instantiateConsoliders()
     {
+
         $allConsoliders = array_merge($this->analyzers, $this->consoliders);
 
         $consoliders = [];
@@ -169,7 +170,7 @@ class Manager
 
             $consoliders[$consolider] = $consoliderObject;
         }
-
+        
         return $consoliders;
     }
 

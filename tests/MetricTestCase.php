@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Faker\Factory;
 use Dvlpp\Metrics\Visit;
 use Dvlpp\Metrics\Repositories\VisitRepository;
@@ -112,6 +113,19 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         return new Collection($visits);    
     }
 
+    // Generate fake visits we can parse for metrics
+    // (don't create them in database)
+    protected function generateVisitsByDates($number, Carbon $start, Carbon $end , $attributes = [])
+    {
+        $faker = $this->faker;
+        $visits = [];
+        for($x=0;$x<$number;$x++) {
+            $attributes['date'] = $faker->dateTimeBetween($start,$end);
+            $visits[] = $this->makeVisit($attributes);
+        }   
+        return new Collection($visits);    
+    }
+
     // Generate fake visits and save them in database
     protected function createVisits($number, $timeInterval = '-1 week', $attributes = [])
     {
@@ -120,6 +134,16 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         $visits->map(function($item) use ($repo) {
             $repo->store($item);
         });
+    }
+
+    protected function createVisitsByDate($number, $startDate, $endDate, $attributes = [])
+    {
+        $repo = $this->app->make(VisitRepository::class);
+        $visits = $this->generateVisitsbyDates($number, $startDate, $endDate, $attributes);
+        $visits->map(function($item) use ($repo) {
+            $repo->store($item);
+        });
+
     }
 
     /**
@@ -174,6 +198,8 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
 
         return Visit::createFromArray($data);
     }
+
+
 }
 
 // Test debug helper

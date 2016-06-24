@@ -30,10 +30,16 @@ class Consolider
      */
     public function consolidate(Collection $metrics)
     {
-        $statistics = [];
 
+        $statistics = [];
         foreach($this->consoliders as $consolider) {
-            $statistics[get_class($consolider)] = $consolider->consolidate($metrics);
+            $consoliderStatistics = [];
+
+            foreach($metrics as $metric) {
+                $consoliderStatistics[] = $metric->getStatisticsByKey(get_class($consolider));
+            }
+
+            $statistics[get_class($consolider)] = $consolider->consolidate($consoliderStatistics);
         }
 
         return $statistics;

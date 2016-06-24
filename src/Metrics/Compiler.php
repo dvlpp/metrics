@@ -12,19 +12,13 @@ class Compiler
     protected $analyzers;
 
     /**
-     * @var array
-     */
-    protected $consoliders;
-
-    /**
      * @var string
      */
     protected $type;
 
-    public function __construct(array $analyzers, array $consoliders, $type)
+    public function __construct(array $analyzers, $type)
     {
         $this->analyzers = $analyzers;
-        $this->consoliders = $consoliders;
         $this->type = $type;
     }
 
@@ -43,14 +37,6 @@ class Compiler
                 $statistics[get_class($analyzer)] = $analyzer->compile($visits);
             }
         }
-
-        
-
-        /*foreach($this->analyzers as $analyzer) {
-            if($analyzer->getPeriod() == $this->type) {
-                $statistics[get_class($analyzer)] = $analyzer->compile($visits);
-            }
-        }*/
 
         return $statistics;
     }

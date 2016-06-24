@@ -78,6 +78,22 @@ class MetricEloquentRepository implements MetricRepository
     }
 
     /**
+     * Return all the metric records for the given time interval & type
+     * 
+     * @param  TimeInterval $interval
+     * @param  integer  $type
+     * @return Collection
+     */
+    public function getTimeIntervalByType(TimeInterval $interval, $type)
+    {
+        $metrics = $this->metric->whereType($type)
+            ->where('start', '>=', $interval->start())
+            ->where('end', '<', $interval->end())->get();
+        
+        return $this->convertCollection($metrics);
+    }
+
+    /**
      * Return true if a time interval exists
      * 
      * @param  TimeInterval $interval 
@@ -106,7 +122,7 @@ class MetricEloquentRepository implements MetricRepository
             unset($attributes['id']);
         }
 
-        $metric = VisitModel::create($attributes);
+        $metric = MetricModel::create($attributes);
     }
 
     /**

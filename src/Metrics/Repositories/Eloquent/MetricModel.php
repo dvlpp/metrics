@@ -13,5 +13,11 @@ class MetricModel extends Model
     protected $dates = ['start', 'end'];
 
     protected $table='metric_metrics';
+
+    protected $fillable = ['start', 'end', 'count', 'statistics', 'type'];
+
+    protected $casts = [
+        'statistics' => 'array',
+    ];
     
 }

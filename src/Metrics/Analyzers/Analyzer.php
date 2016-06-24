@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Metrics\Analyzers;
 
+use Dvlpp\Metrics\Metric;
 use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Contracts\AnalyzerInterface;
 use Dvlpp\Metrics\Contracts\ConsoliderInterface;
@@ -9,12 +10,11 @@ use Dvlpp\Metrics\Contracts\ConsoliderInterface;
 abstract class Analyzer implements AnalyzerInterface, ConsoliderInterface {
 
     /**
-     * Indicate at which inteval this analyzer must be run. Possible values are 
-     * 'hour', 'day', 'month', 'year'
+     * Indicate at which inteval this analyzer must be run. 
      * 
-     * @var string
+     * @var integer
      */
-    protected $period = 'hour';
+    protected $period = Metric::HOURLY;
 
     /**
      * Extract statistics from a range of visits
@@ -28,10 +28,10 @@ abstract class Analyzer implements AnalyzerInterface, ConsoliderInterface {
     /**
      * Consolidate several metrics objects
      * 
-     * @param  Collection $metrics 
+     * @param  array $statistics
      * @return 
      */
-    abstract public function consolidate(Collection $metrics);
+    abstract public function consolidate(array $statistics);
 
     /**
      * Get the time interval on which this can be calculated
@@ -40,7 +40,7 @@ abstract class Analyzer implements AnalyzerInterface, ConsoliderInterface {
      */
     public function getPeriod()
     {
-        if(! in_array($this->period, ['hour', 'day', 'month', 'year'])) {
+        if(! in_array($this->period, [Metric::HOURLY, Metric::DAILY, Metric::MONTHLY, Metric::YEARLY])) {
             throw new MetricException("Analyzer period must be hour, day, month, or year");
         }
         return $this->period;

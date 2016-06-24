@@ -54,6 +54,8 @@ class Metric
         $metric->setType($interval->type());
         $metric->setStatistics($statistics);
         $metric->setCount($count);
+
+        return $metric;
     }
 
     /**
@@ -70,6 +72,8 @@ class Metric
         $metric->setStatistics($data['statistics']);
         $metric->setCount($data['count']);
         $metric->setType($data['type']);
+
+        return $metric;
     }
 
     public function setType($type)
@@ -115,6 +119,22 @@ class Metric
     public function getStatistics()
     {
         return $this->statistics;
+    }
+
+    /**
+     * Return a statistic array by key
+     * @param  string $key
+     * @return array
+     */
+    public function getStatisticsByKey($key)
+    {
+        if(array_key_exists($key, $this->statistics)) {
+            return $this->statistics[$key];
+        }
+        else {
+            return [];
+        }
+
     }
 
     public function getCount()

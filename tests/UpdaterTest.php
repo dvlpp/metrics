@@ -1,9 +1,11 @@
 <?php
 
 use Carbon\Carbon;
+use Dvlpp\Metrics\Metric;
 use Dvlpp\Metrics\Updater;
 use Dvlpp\Metrics\Manager;
 use Dvlpp\Metrics\TimeInterval;
+use Dvlpp\Metrics\Repositories\Eloquent\MetricModel;
 
 class UpdaterTest extends MetricTestCase 
 {
@@ -62,10 +64,22 @@ class UpdaterTest extends MetricTestCase
     }
 
     /** @test */
-    public function we_can_update_metrics()
+    public function we_can_update_metrics_without_any_visit()
     {
-        $this->createVisits(1000, '-1 week');
-
         $this->updater->update();
     }
+
+    /** @test */
+    public function we_get_exact_visit_count()
+    {
+        $start = Carbon::create(2016,1,1,0,0,0);
+        $end = Carbon::create(2016,1,1,23,59,59);
+        $this->createVisitsByDate(50, $start, $end);
+        $this->updater->update();
+        $metrics = $this->app->make(Dvlpp\Metrics\Repositories\MetricRepository::class);
+        $period = new TimeInterval($start, $end, Metric::DAILY);
+        $metric = $metrics->find($period);
+        $this->assertEquals(50, $metric->getCount());
+    }
+
 }

@@ -34,11 +34,15 @@ class VisitEloquentRepository implements VisitRepository
     /**
      * Get the oldest visit
      * 
-     * @return Visit
+     * @return Visit | null
      */
     public function first()
     {
-        return $this->convertObject($this->visit->orderBy('date')->first());
+        $visit = $this->visit->orderBy('date')->first();
+
+        if($visit) {
+            return $this->convertObject($visit);
+        }
     }
 
     /**
@@ -48,7 +52,11 @@ class VisitEloquentRepository implements VisitRepository
      */
     public function last()
     {
-        return $this->convertObject($this->visit->orderBy('date','desc')->first());
+        $visit = $this->visit->orderBy('date','desc')->first();
+
+        if($visit) {
+            return $this->convertObject($visit);
+        }
     }
 
     /**
