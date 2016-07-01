@@ -189,6 +189,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
             'ip' => $faker->randomElement([$faker->ipv4, $faker->ipv6]),
             'date' => $faker->dateTimeBetween($startDate),
             'cookie' => $faker->sha256,
+            'referer' => '',
             'actions' => [],
             'custom' => [],
         ];

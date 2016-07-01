@@ -12,7 +12,7 @@ class VisitModel extends Model
 
     protected $table='metric_visits';
     
-    protected $fillable = ['ip', 'user_agent', 'user_id', 'custom', 'actions', 'date', 'url', 'cookie'];
+    protected $fillable = ['ip', 'user_agent', 'user_id', 'custom', 'actions', 'date', 'url', 'cookie','referer'];
 
     protected $casts = [
         'actions' => 'array',

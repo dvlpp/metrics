@@ -49,6 +49,13 @@ class Visit implements Arrayable
     protected $url;
 
     /**
+     * The referer for current visit
+     * 
+     * @var string
+     */
+    protected $referer;
+
+    /**
      * Actions objets
      * 
      * @var ActionCollection
@@ -85,6 +92,7 @@ class Visit implements Arrayable
         $visit = new Static;
         $visit->date = Carbon::now();
         $visit->url = $request->getUri();
+        $visit->referer = $request->server('HTTP_REFERER');
         $visit->ip = $request->ip();
         if($request->hasCookie(config('metrics.cookie_name'))) {
             $visit->cookie = $request->cookies->get(config('metrics.cookie_name'));    
@@ -92,7 +100,6 @@ class Visit implements Arrayable
         else {
             $visit->cookie = str_random(32);
         }
-        
         $visit->user_agent = $request->server('HTTP_USER_AGENT');
         return $visit;
     }
@@ -115,6 +122,7 @@ class Visit implements Arrayable
         $visit->user_id = $data['user_id'];
         $visit->custom = $data['custom'];
         $visit->url = $data['url'];
+        $visit->referer = $data['referer'];
         $visit->date = $data['date'];
         $visit->cookie = $data['cookie'];
         foreach($data['actions'] as $action) {
@@ -264,6 +272,7 @@ class Visit implements Arrayable
             'custom' => $this->custom,
             'cookie' => $this->cookie,
             'url' => $this->url,
+            'referer' => $this->referer,
             'date' => $this->date,
         ];
     }

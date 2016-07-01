@@ -16,6 +16,7 @@ class CreateVisitsTables extends Migration
             $table->bigIncrements('id');
             $table->string('ip');
             $table->string('url');
+            $table->string('referer')->nullable();
             $table->string('cookie')->nullable();
             $table->string('user_agent');
             $table->text('custom')->nullable();
