@@ -4,6 +4,7 @@ namespace Dvlpp\Metrics;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Contracts\Support\Arrayable;
 
 class Visit implements Arrayable
@@ -78,7 +79,7 @@ class Visit implements Arrayable
 
     public function __construct()
     {
-        $this->actions = new ActionCollection;
+        $this->actions = new Collection;
     }
 
     /**
