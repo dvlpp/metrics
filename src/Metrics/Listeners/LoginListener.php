@@ -25,7 +25,7 @@ class LoginListener {
     {
         // We add a user login action
         $action = new UserLoginAction($event->user->id);
-        $this->manager->visit()->addAction($action);
+        $this->manager->action($action);
 
         // Then we tell the manager to go look back in time for untracked visits
         $this->manager->markPreviousUserVisits($event->user->id);

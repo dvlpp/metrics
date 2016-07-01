@@ -25,7 +25,7 @@ class LogoutListener {
     {
         // We add a user login action
         $action = new UserLogoutAction($event->user->id);
-        $this->manager->visit()->addAction($action);
+        $this->manager->action($action);
 
         
     }

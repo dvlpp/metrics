@@ -47,7 +47,9 @@ class MetricServiceProvider extends ServiceProvider {
             __DIR__.'/../config/config.php' => config_path($this->packageName.'.php'),
         ], 'config');
 
-        //
+        if(! $this->app['config']->get('metrics.enable')) {
+            $this->app(Manager::class)->setTrackingOff();
+        }
     }
 
     /**

@@ -12,7 +12,7 @@ if (! function_exists('metrics')) {
      */
     function metrics()
     {
-        return app(Dvlpp\Metrics\Manager::class);
+        return app(Manager::class);
     }
 }
 
@@ -25,6 +25,6 @@ if (! function_exists('metrics_action')) {
      */
     function metrics_action(Action $action)
     {
-        return app(Dvlpp\Metrics\Manager::class)->action($action);
+        return app(Manager::class)->action($action);
     }
 }
