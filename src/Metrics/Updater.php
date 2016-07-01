@@ -123,7 +123,7 @@ class Updater
      */
     protected function processAnalyze(TimeInterval $period)
     {
-        $compiler = new Compiler($this->analyzers, $period->type());
+        $compiler = new Compiler($this->analyzers[$period->type()]);
 
         $visits = $this->visits->getTimeInterval($period->start(), $period->end());
 
@@ -147,8 +147,7 @@ class Updater
      */
     protected function processConsolidate(TimeInterval $period, Metric $metric)
     {
-        $consoliders = array_merge($this->analyzers, $this->consoliders);
-        $consolider = new Consolider($consoliders, $period->type());
+        $consolider = new Consolider($this->consoliders[$period->type()]);
 
         $metrics = $this->metrics->getTimeIntervalByType($period, $period->type() - 1);
 

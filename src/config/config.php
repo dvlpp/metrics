@@ -24,4 +24,44 @@ return [
     */
     'visits_retention_time' => '1 month',
     
+    /*
+    |--------------------------------------------------------------------------
+    | Analyzers & Consoliders
+    |--------------------------------------------------------------------------
+    |
+    | Here you can fine tune which analyzers will be run and at which time interval  
+    |
+    */
+   'analyzers' => [
+        'hourly' => [
+            Dvlpp\Metrics\Analyzers\UrlAnalyzer::class,
+            Dvlpp\Metrics\Analyzers\UserAgentAnalyzer::class,
+            Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer::class,
+        ],
+        'daily' => [
+            Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer::class,
+        ],
+        'monthly' => [],
+        'yearly' => [],
+   ],
+
+   'consoliders' => [
+         
+        'daily' => [
+            Dvlpp\Metrics\Analyzers\UrlAnalyzer::class,
+            Dvlpp\Metrics\Analyzers\UserAgentAnalyzer::class,
+        ],
+        'monthly' => [
+            Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer::class,
+            Dvlpp\Metrics\Analyzers\UrlAnalyzer::class,
+            Dvlpp\Metrics\Analyzers\UserAgentAnalyzer::class,
+        ],
+        'yearly' => [
+            Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer::class,
+            Dvlpp\Metrics\Analyzers\UrlAnalyzer::class,
+            Dvlpp\Metrics\Analyzers\UserAgentAnalyzer::class,
+        ],
+   ],
+
+
 ];

@@ -7,12 +7,6 @@ use Illuminate\Support\Collection;
 
 class UniqueVisitorAnalyzer extends Analyzer
 {
-    /**
-     * Indicate at which inteval this analyzer must be run. 
-     * 
-     * @var integer
-     */
-    protected $period = Metric::DAILY;
 
     public function compile(Collection $visits)
     {

@@ -11,15 +11,9 @@ class Consolider
      */
     protected $consoliders;
 
-    /**
-     * @var string
-     */
-    protected $type;
-
-    public function __construct(array $consoliders, $type)
+    public function __construct(array $consoliders)
     {
         $this->consoliders = $consoliders;
-        $this->type = $type;
     }
 
     /**

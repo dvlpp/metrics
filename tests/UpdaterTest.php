@@ -82,12 +82,12 @@ class UpdaterTest extends MetricTestCase
         $this->assertEquals(50, $metric->getCount());
     }
 
-    /** @test */
+    /*
     public function load_test()
     {
         $start = Carbon::create(2016,1,1,0,0,0);
         $end = Carbon::create(2016,1,1,23,59,59);
         $this->createVisitsByDate(100000, $start, $end);
         $this->updater->update();
-    }
+    }*/
 }

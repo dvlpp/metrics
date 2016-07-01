@@ -11,9 +11,6 @@ use Dvlpp\Metrics\Repositories\Eloquent\VisitEloquentRepository;
 use Dvlpp\Metrics\Repositories\Eloquent\MetricEloquentRepository;
 use Dvlpp\Metrics\Listeners\LoginListener;
 use Dvlpp\Metrics\Listeners\LogoutListener;
-use Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer;
-use Dvlpp\Metrics\Analyzers\UrlAnalyzer;
-use Dvlpp\Metrics\Analyzers\UserAgentAnalyzer;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 
@@ -76,22 +73,12 @@ class MetricServiceProvider extends ServiceProvider {
         $router = $this->app['router'];
         $router->middleware('no_tracking', NoTrackingMiddleware::class);
 
-        $this->registerAnalyzers();
         $this->registerListeners();
 
         $this->commands([
             \Dvlpp\Metrics\Console\UpdateCommand::class,
             \Dvlpp\Metrics\Console\MigrateCommand::class,
         ]);
-    }
-
-    protected function registerAnalyzers()
-    {
-        $manager = $this->app[Manager::class];
-
-        $manager->registerAnalyzer(UrlAnalyzer::class);
-        $manager->registerAnalyzer(UserAgentAnalyzer::class);
-        $manager->registerAnalyzer(UniqueVisitorAnalyzer::class);
     }
 
     protected function registerListeners()

@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use InvalidArgumentException;
 use Illuminate\Foundation\Application;
 use Dvlpp\Metrics\Exceptions\TrackingException;
+use Dvlpp\Metrics\Exceptions\MetricException;
 use Dvlpp\Metrics\Repositories\MetricRepository;
 use Dvlpp\Metrics\Repositories\VisitRepository;
 use Dvlpp\Metrics\Contracts\AnalyzerInterface;
@@ -76,31 +77,9 @@ class Manager
         return new Updater(
             $this->app->make(MetricRepository::class), 
             $this->app->make(VisitRepository::class),
-            $this->instantiateAnalyzers(),
-            $this->instantiateConsoliders()
+            $this->instantiateProcessors($this->getAnalyzersFromConfig()),
+            $this->instantiateProcessors($this->getConsolidersFromConfig())
         );
-    }
-
-    /**
-     * Add an analyzer class to the stack
-     * 
-     * @param string $analyzer
-     * @return void
-     */
-    public function registerAnalyzer($analyzer)
-    {
-        $this->analyzers[] = $analyzer;
-    }
-    
-    /**
-     * Add a consolider class
-     * 
-     * @param string $consolider 
-     * @return void
-     */
-    public function registerConsolider($consolider)
-    {
-        $this->consoliders[] = $consolider;
     }
 
     /**
@@ -230,50 +209,59 @@ class Manager
     }
 
     /**
-     * Instantiate all registered analyzers & consoliders
+     * Return the analyzers classes from config
      * 
      * @return array
      */
-    protected function instantiateConsoliders()
+    protected function getAnalyzersFromConfig()
     {
-
-        $allConsoliders = array_merge($this->analyzers, $this->consoliders);
-
-        $consoliders = [];
-
-        foreach($allConsoliders as $consolider) {
-            $consoliderObject = $this->app->make($consolider);
-
-            if(! $consoliderObject instanceof ConsoliderInterface) {
-                throw new InvalidArgumentException("Invalid Consolider Object");
-            }
-
-            $consoliders[$consolider] = $consoliderObject;
-        }
-        
-        return $consoliders;
+        return $this->app['config']->get('metrics.analyzers');
     }
 
     /**
-     * Instantiate all analyzers and return them as an array
+     * Return the consoliders classes from config
      * 
      * @return array
      */
-    protected function instantiateAnalyzers()
+    protected function getConsolidersFromConfig()
     {
-        $analyzers = [];
+        return $this->app['config']->get('metrics.consoliders');
+    }
 
-        foreach($this->analyzers as $analyzer) {
-            $analyzerObject = $this->app->make($analyzer);
+    /**
+     * Convert processors class name into object instances
+     * 
+     * @param  array  $processorConfig 
+     * @return  array
+     */
+    protected function instantiateProcessors(array $processorConfig)
+    {
+        $processors = [];
 
-            if(! $analyzerObject instanceof AnalyzerInterface) {
-                throw new InvalidArgumentException("Invalid Analyzer Object");
+        foreach($processorConfig as $period => $classes) {
+            $periodValue = $this->getPeriodConstantFromString($period);
+            $processors[$periodValue] = [];
+            foreach($classes as $class) {
+                $processors[$periodValue][] =  $this->app->make($class);
             }
-
-            $analyzers[$analyzer] = $analyzerObject;
         }
 
-        return $analyzers;
+        return $processors;
+    }
+
+    protected function getPeriodConstantFromString($period) 
+    {
+        switch($period) {
+            case 'hourly':
+                return Metric::HOURLY;
+            case 'daily':
+                return Metric::DAILY;
+            case 'monthly':
+                return Metric::MONTHLY;
+            case 'yearly':
+                return Metric::YEARLY;
+        }
+        throw new MetricException("Invalid period in config : $period");
     }
 
 }
