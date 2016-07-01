@@ -28,7 +28,15 @@ class UniqueVisitorAnalyzer extends Analyzer
     // then return a consolidated array. 
     public function consolidate(array $statistics)
     {
-        $data = [];
+        $uniqueVisitors = 0;
+
+        foreach($statistics as $statistic) {
+            if(array_key_exists('unique-visitors', $statistic)) {
+                $uniqueVisitors+= $statistic['unique-visitors'];
+            }
+        }
+        
+        $data = ['unique-visitors' => $uniqueVisitors];
         return $data;
     }
 

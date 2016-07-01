@@ -225,6 +225,38 @@ class Visit implements Arrayable
     }
 
     /**
+     * Get the action from the given class
+     * 
+     * @param  string $actionClass
+     * @return  Action | null
+     */
+    public function getAction($actionClass)
+    {
+        foreach($this->actions as $action) {
+            if(get_class($action) == $actionClass) {
+                return $action;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return true if the Visit has an action of the given class
+     * 
+     * @param  string  $actionClass
+     * @return boolean        
+     */
+    public function hasAction($actionClass)
+    {
+        foreach($this->actions as $action) {
+            if(get_class($action) == $actionClass) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Add a custom tracking value to the object
      * 
      * @param string $key 
