@@ -5,6 +5,7 @@ namespace Dvlpp\Metrics\Middleware;
 use Closure;
 use Dvlpp\Metrics\Manager;
 use Dvlpp\Metrics\Repositories\VisitRepository;
+use Illuminate\Contracts\Auth\Guard;
 
 class StoreMetricMiddleware
 {
@@ -18,10 +19,16 @@ class StoreMetricMiddleware
      */
     protected $metricManager;
 
-    public function __construct(VisitRepository $visits, Manager $metricManager)
+    /**
+     * @var Guard
+     */
+    protected $guard;
+
+    public function __construct(VisitRepository $visits, Manager $metricManager, Guard $guard)
     {
         $this->visits = $visits;
         $this->metricManager = $metricManager;
+        $this->guard = $guard;
     }   
 
     /**
@@ -41,7 +48,18 @@ class StoreMetricMiddleware
     {
         $visit = $this->metricManager->visit();
 
+        // As some authentication method will take place
+        // after the middleware are executed, we'll wait
+        // for this last moment to set the user id, if 
+        // present.
+        if($this->guard->user()) {
+            $visit->setUserId($this->guard->user()->id);
+        }
+
         if($visit && $this->metricManager->isRequestTracked()) {
+
+            $this->metricManager->processDataProviders();
+
             $this->visits->store($this->metricManager->visit());    
         }
         

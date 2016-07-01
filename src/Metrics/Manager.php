@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Metrics;
 
+use Closure;
 use Carbon\Carbon;
 use InvalidArgumentException;
 use Illuminate\Foundation\Application;
@@ -44,6 +45,11 @@ class Manager
      * @var array
      */
     protected $consoliders = [];
+
+    /**
+     * @var array
+     */
+    protected $pendingActions = [];
 
     public function __construct(Application $app)
     {
@@ -109,44 +115,118 @@ class Manager
         }
         
         $this->visit = $visit;
+
+        foreach($this->pendingActions as $action) {
+            $this->visit->addAction($action);
+        }
+
         return $this;
     }
 
+    /**
+     * Access the current visit
+     * 
+     * @return Visit
+     */
     public function visit()
     {
         return $this->visit;
     }
 
+    /**
+     * Attach an action to the current visit
+     * 
+     * @param  Action $action
+     * @return void
+     */
+    public function action(Action $action)
+    {
+        if($this->visit != null) {
+            $this->visit->addAction($action);    
+        }
+        else {
+            // In some cases (eg Middleware), the current Visit will
+            // not be already initialized. So we'll stack it into
+            // an array and add them when initialized.
+            $this->pendingActions[] = $action;
+        }
+    }
+
+    /**
+     * Indicate if the tracking is enabled for the current request
+     * 
+     * @return boolean
+     */
     public function isRequestTracked()
     {
         return $this->trackRequest;
     }
         
+    /**
+     * Disable tracking for current request
+     *
+     * @return void
+     */
     public function setTrackingOff()
     {
         $this->trackRequest = false;
     }
 
     /**
-     * Look into past for unasigned visit entries with same User
-     * 
-     * @return void
+     * Look into past for the indicated user
+     *
+     * @param  string  $userId
+     * @return boolean
      */
-    /*public function lookIntoPast()
+    public function markPreviousUserVisits($userId)
     {
-        // TODO: find a 'ok' name for this method
-    }*/
+        $timeMachine = $this->getTimeMachine();
+
+        return $timeMachine->lookup($userId);
+    }
+
+    /**
+     * Get the time machine instance
+     * 
+     * @return TimeMachine
+     */
+    protected function getTimeMachine()
+    {
+        return new TimeMachine(
+            $this->app->make(VisitRepository::class),
+            $this->visit()
+        );
+    }
 
     /**
      * Add a custom data provider which will provide the Visit object
      * with a custom field at each request
      * 
-     * @param Closure/Class $callback 
+     * @param Closure | class $callback 
      * @return void
      */
     public function addDataProvider($callback)
     {   
-        //
+        $this->providers[] = $callback;
+    }
+
+    /**
+     * Parse providers and execute them on visit instance
+     * 
+     * @return void
+     */
+    public function processDataProviders()
+    {
+        foreach($this->providers as $provider) {
+            if($provider instanceof Closure) {
+                $provider($this->visit);    
+            }
+            else {
+                $provider = $this->app->make($provider);
+                $provider->process($this->visit);
+            }
+            
+        }
     }
 
     /**

@@ -17,4 +17,10 @@ interface VisitRepository {
     public function first();
 
     public function last();
+
+    public function visitsFromUser($userId);
+
+    public function lastVisitFromUser($userId);
+
+    public function translateCookie($oldCookie, $newCookie);
 }

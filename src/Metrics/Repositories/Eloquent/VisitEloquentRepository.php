@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Dvlpp\Metrics\TimeInterval;
 use Dvlpp\Metrics\Visit;
 use Illuminate\Support\Collection;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Dvlpp\Metrics\Repositories\VisitRepository;
 
@@ -16,9 +17,15 @@ class VisitEloquentRepository implements VisitRepository
      */
     protected $visit;
 
-    public function __construct()
+    /**
+     * @var DatabaseManager
+     */
+    protected $database;
+
+    public function __construct(DatabaseManager $database)
     {
         $this->visit = new VisitModel;
+        $this->database = $database;
     }
 
     /**
@@ -60,6 +67,60 @@ class VisitEloquentRepository implements VisitRepository
     }
 
     /**
+     * Return all the visits for a given user
+     * 
+     * @param  string $userId 
+     * @return Collection 
+     */
+    public function visitsFromUser($userId)
+    {
+        $visits = $this->visit->orderBy('date', 'desc')->whereUserId($userId)->get();
+
+        return $this->convertCollection($visits);
+    }
+
+    /**
+     * Return the last visit instance for a given user
+     * 
+     * @param  string $userId
+     * @return Visit | null
+     */
+    public function lastVisitFromUser($userId)
+    {
+        $visit = $this->visit->orderBy('date', 'desc')->whereUserId($userId)->first();
+
+        if($visit) {
+            return $this->convertObject($visit);
+        }
+    }
+
+    /**
+     * Update previous visit's cookies to another value. Useful
+     * when a user has logged in and we want to track the visits
+     * it has already made.
+     * 
+     * @param  string  $oldCookie 
+     * @param  string  $newCookie 
+     * @return boolean
+     */
+    public function translateCookie($oldCookie, $newCookie)
+    {
+        return $this->getQueryBuilder()->where('cookie', $oldCookie)->update(['cookie', $newCookie]);
+    }
+
+    /**
+     * Set the user id for previous visits of a given cookie
+     * 
+     * @param string $cookie 
+     * @param string $userId 
+     * @return boolean
+     */
+    public function setUserForCookie($cookie, $userId)
+    {
+        return $this->getQueryBuilder()->where('cookie', $cookie)->where('user_id', null)->update(['user_id' => $userId]);
+    }
+
+    /**
      * Return all visits for a given interval
      * 
      * @param  Carbon $start
@@ -69,6 +130,8 @@ class VisitEloquentRepository implements VisitRepository
     public function getTimeInterval(Carbon $start, Carbon $end)
     {
         $visits = $this->visit->where('date', ">=", $start)->where('date', "<=", $end)->get();
+
+        // TODO : we could chunk these results to optimize the memory usage a little.
 
         return $this->convertCollection($visits);
     }
@@ -126,5 +189,15 @@ class VisitEloquentRepository implements VisitRepository
     protected function convertObject(VisitModel $visit)
     {
         return Visit::createFromArray($visit->toArray() );
+    }
+
+    /**
+     * Return instance of query builder for the metrics_visits table
+     * 
+     * @return Builder
+     */
+    protected function getQueryBuilder()
+    {
+        return $this->database->table('metric_visits');
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Dvlpp\Metrics\Listeners;
 
+use Dvlpp\Metrics\Manager;
 use Illuminate\Auth\Events\Logout;
+use Dvlpp\Metrics\Actions\UserLogoutAction;
 
 class LogoutListener {
 

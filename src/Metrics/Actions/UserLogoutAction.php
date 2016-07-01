@@ -4,9 +4,9 @@ namespace Dvlpp\Metrics\Actions;
 
 use Dvlpp\Metrics\Action;
 
-class UserLoginAction extends Action {
+class UserLogoutAction extends Action {
     
-    protected $userId;
+    public $userId;
 
     public function __construct($userId)
     {

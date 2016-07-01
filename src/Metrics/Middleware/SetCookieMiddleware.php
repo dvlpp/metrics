@@ -3,10 +3,9 @@
 namespace Dvlpp\Metrics\Middleware;
 
 use Closure;
-use Dvlpp\Metrics\Visit;
 use Dvlpp\Metrics\Manager;
 
-class MetricMiddleware
+class SetCookieMiddleware
 {
     /**
      * @var Manager
@@ -27,12 +26,17 @@ class MetricMiddleware
      * @return mixed
      */
     public function handle($request, Closure $next)
-    {
-        // Handle the 'Do Not Track' header
-        if(! $request->server('HTTP_DNT') == 1) {
-            $this->metricManager->track(Visit::createFromRequest($request));
+    {   
+        $response = $next($request);
+
+        $visit = $this->metricManager->visit();
+
+        if($visit && $this->metricManager->isRequestTracked()) {
+            $cookieName = config('metrics.cookie_name');
+            $value = $visit->getCookie();
+            $response->withCookie(cookie()->forever($cookieName, $value));  
         }
-        
-        return $next($request);
+
+        return $response;
     }
 }

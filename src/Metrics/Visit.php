@@ -35,7 +35,7 @@ class Visit implements Arrayable
     protected $user_agent;
 
     /**
-     * The laravel session cookie, if set
+     * The tracking cookie, if set
      * 
      * @var string
      */
@@ -84,9 +84,15 @@ class Visit implements Arrayable
     {
         $visit = new Static;
         $visit->date = Carbon::now();
-        $visit->url = "/".$request->getUri();
+        $visit->url = $request->getUri();
         $visit->ip = $request->ip();
-        $visit->cookie = $request->cookies->get('laravel_session');
+        if($request->hasCookie(config('metrics.cookie_name'))) {
+            $visit->cookie = $request->cookies->get(config('metrics.cookie_name'));    
+        }
+        else {
+            $visit->cookie = str_random(32);
+        }
+        
         $visit->user_agent = $request->server('HTTP_USER_AGENT');
         return $visit;
     }
@@ -276,5 +282,16 @@ class Visit implements Arrayable
         }
 
         return $actions;
+    }
+
+    /**
+     * Magic getter for object's properties
+     * 
+     * @param  string  $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        return $this->$key;
     }
 }

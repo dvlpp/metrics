@@ -2,19 +2,31 @@
 
 namespace Dvlpp\Metrics\Analyzers;
 
+use Dvlpp\Metrics\Metric;
 use Illuminate\Support\Collection;
 
 class UniqueVisitorAnalyzer extends Analyzer
 {
+    /**
+     * Indicate at which inteval this analyzer must be run. 
+     * 
+     * @var integer
+     */
+    protected $period = Metric::DAILY;
 
     public function compile(Collection $visits)
     {
-
         $data = [];
 
-        // The method will return its computed statistics
-        // as an associative array.
-        return $data;
+        $cookieStack = [];
+        
+        foreach($visits as $visit) {
+            if(! in_array($visit->getCookie(), $cookieStack)) {
+                $cookieStack[] = $visit->getCookie();
+            }
+        }
+
+        return ['unique-visitors' => count($cookieStack)];
 
     }
 

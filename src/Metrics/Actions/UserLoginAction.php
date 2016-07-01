@@ -6,7 +6,7 @@ use Dvlpp\Metrics\Action;
 
 class UserLoginAction extends Action {
     
-    protected $userId;
+    public $userId;
 
     public function __construct($userId)
     {

@@ -28,7 +28,7 @@ class LoginListener {
         $this->manager->visit()->addAction($action);
 
         // Then we tell the manager to go look back in time for untracked visits
-        $this->manager->lookIntoPast();
+        $this->manager->markPreviousUserVisits($event->user->id);
     }
 
 }

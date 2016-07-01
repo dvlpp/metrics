@@ -4,13 +4,18 @@ use Illuminate\Support\ServiceProvider;
 use Dvlpp\Metrics\Middleware\MetricMiddleware;
 use Dvlpp\Metrics\Repositories\VisitRepository;
 use Dvlpp\Metrics\Repositories\MetricRepository;
+use Dvlpp\Metrics\Middleware\SetCookieMiddleware;
 use Dvlpp\Metrics\Middleware\NoTrackingMiddleware;
 use Dvlpp\Metrics\Middleware\StoreMetricMiddleware;
 use Dvlpp\Metrics\Repositories\Eloquent\VisitEloquentRepository;
 use Dvlpp\Metrics\Repositories\Eloquent\MetricEloquentRepository;
+use Dvlpp\Metrics\Listeners\LoginListener;
+use Dvlpp\Metrics\Listeners\LogoutListener;
 use Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer;
 use Dvlpp\Metrics\Analyzers\UrlAnalyzer;
 use Dvlpp\Metrics\Analyzers\UserAgentAnalyzer;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 
 /**
  * A Laravel 5's package template.
@@ -66,11 +71,18 @@ class MetricServiceProvider extends ServiceProvider {
 
         $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependMiddleware(MetricMiddleware::class);
         $this->app[\Illuminate\Contracts\Http\Kernel::class]->pushMiddleware(StoreMetricMiddleware::class);
+        $this->app[\Illuminate\Contracts\Http\Kernel::class]->pushMiddleware(SetCookieMiddleware::class);
 
         $router = $this->app['router'];
         $router->middleware('no_tracking', NoTrackingMiddleware::class);
 
         $this->registerAnalyzers();
+        $this->registerListeners();
+
+        $this->commands([
+            \Dvlpp\Metrics\Console\UpdateCommand::class,
+            \Dvlpp\Metrics\Console\MigrateCommand::class,
+        ]);
     }
 
     protected function registerAnalyzers()
@@ -80,6 +92,14 @@ class MetricServiceProvider extends ServiceProvider {
         $manager->registerAnalyzer(UrlAnalyzer::class);
         $manager->registerAnalyzer(UserAgentAnalyzer::class);
         $manager->registerAnalyzer(UniqueVisitorAnalyzer::class);
+    }
+
+    protected function registerListeners()
+    {
+        $events = $this->app['events'];
+
+        $events->listen(Login::class, LoginListener::class);
+        $events->listen(Logout::class, LogoutListener::class);
     }
 
 }
