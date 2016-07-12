@@ -21,9 +21,9 @@ abstract class Analyzer implements AnalyzerInterface, ConsoliderInterface {
     /**
      * Consolidate several metrics objects
      * 
-     * @param  array $statistics
+     * @param  Collection $statistics
      * @return 
      */
-    abstract public function consolidate(array $statistics);
+    abstract public function consolidate(Collection $metrics);
 
 }

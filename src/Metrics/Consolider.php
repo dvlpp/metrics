@@ -29,11 +29,12 @@ class Consolider
         foreach($this->consoliders as $consolider) {
             $consoliderStatistics = [];
 
-            foreach($metrics as $metric) {
+            // We'll pass directly the collection to the consolider class
+            /*foreach($metrics as $metric) {
                 $consoliderStatistics[] = $metric->getStatisticsByKey(get_class($consolider));
-            }
+            }*/
 
-            $statistics[get_class($consolider)] = $consolider->consolidate($consoliderStatistics);
+            $statistics[get_class($consolider)] = $consolider->consolidate($metrics);
         }
 
         return $statistics;

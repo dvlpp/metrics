@@ -26,11 +26,12 @@ class UniqueVisitorAnalyzer extends Analyzer
 
     // This operation will add two array returned by the compile() method
     // then return a consolidated array. 
-    public function consolidate(array $statistics)
+    public function consolidate(Collection $metrics)
     {
         $uniqueVisitors = 0;
 
-        foreach($statistics as $statistic) {
+        foreach($metrics as $metric) {
+            $statistic = $metric->getStatisticsByKey(get_class($this));
             if(array_key_exists('unique-visitors', $statistic)) {
                 $uniqueVisitors+= $statistic['unique-visitors'];
             }

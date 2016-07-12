@@ -2,8 +2,10 @@
 
 namespace Dvlpp\Metrics\Contracts;
 
+use Illuminate\Support\Collection;
+
 interface ConsoliderInterface {
 
-    public function consolidate(array $visits);
+    public function consolidate(Collection $metrics);
 
 }

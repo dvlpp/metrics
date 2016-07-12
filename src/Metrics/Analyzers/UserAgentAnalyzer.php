@@ -17,7 +17,7 @@ class UserAgentAnalyzer extends Analyzer
 
     }
     
-    public function consolidate(array $statistics)
+    public function consolidate(Collection $metrics)
     {
         $data = [];
         return $data;

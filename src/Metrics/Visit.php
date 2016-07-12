@@ -59,7 +59,7 @@ class Visit implements Arrayable
     /**
      * Actions objets
      * 
-     * @var ActionCollection
+     * @var Collection
      */
     protected $actions;
 

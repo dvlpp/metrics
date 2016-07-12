@@ -26,11 +26,12 @@ class UrlAnalyzer extends Analyzer
         return $stack;
     }
 
-    public function consolidate(array $statistics)
+    public function consolidate(Collection $metrics)
     {
         $newStatistics = [];
         
-        foreach ($statistics as $stat) {
+        foreach ($metrics as $metric) {
+            $stat = $metric->getStatisticsByKey(get_class($this));
             foreach($stat as $url => $count)
             {
                 if(array_key_exists($url, $newStatistics)) {
