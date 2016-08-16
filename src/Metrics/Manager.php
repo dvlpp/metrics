@@ -83,7 +83,8 @@ class Manager
     }
 
     /**
-     * [track description]
+     * Set the tracking object 
+     * 
      * @param  Visit  $visit [description]
      * @return [type]        [description]
      */
@@ -159,9 +160,15 @@ class Manager
      */
     public function markPreviousUserVisits($userId)
     {
-        $timeMachine = $this->getTimeMachine();
+        if($this->isRequestTracked() )
+        {
+            $timeMachine = $this->getTimeMachine();
 
-        return $timeMachine->lookup($userId);
+            return $timeMachine->lookup($userId);
+        }
+        else {
+            return false;
+        }
     }
 
     /**

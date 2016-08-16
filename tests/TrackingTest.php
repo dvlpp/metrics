@@ -55,4 +55,13 @@ class TrackingTest extends MetricTestCase
         $manager->processDataProviders();
         $this->assertTrue($manager->visit()->hasCustomValue('test'));
     }
+
+    /** @test */
+    public function calling_tracking_methods_wont_fail_if_tracking_is_off()
+    {
+        $manager = $this->app->make(Manager::class);
+        $manager->setTrackingOff();
+        $manager->action(new AcmeAction('test'));
+        $manager->markPreviousUserVisits(1);
+    }
 }
