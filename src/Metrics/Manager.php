@@ -157,6 +157,16 @@ class Manager
     }
 
     /**
+     * Disable tracking for current request
+     *
+     * @return void
+     */
+    public function setTrackingOn()
+    {
+        $this->trackRequest = true;
+    }
+
+    /**
      * Look into past for the indicated user
      *
      * @param  string  $userId
