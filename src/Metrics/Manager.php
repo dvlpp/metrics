@@ -86,10 +86,14 @@ class Manager
      * Set the tracking object 
      * 
      * @param  Visit  $visit [description]
-     * @return [type]        [description]
+     * @return Manager
      */
     public function track(Visit $visit)
     {
+        if(! $this->isRequestTracked()) {
+            return $this;
+        }
+
         if($this->visit != null) {
             throw new TrackingException('Tracking object $visit cannot be set twice');
         }
