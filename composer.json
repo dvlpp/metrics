@@ -23,6 +23,9 @@
        "psr-4": {
          "Dvlpp\\Metrics\\": "src/Metrics"
         },
+        "classmap": [
+            "src/database"
+        ],
         "files": [
             "src/Metrics/helpers.php"
         ]
