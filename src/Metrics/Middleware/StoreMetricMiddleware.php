@@ -48,15 +48,15 @@ class StoreMetricMiddleware
     {
         $visit = $this->metricManager->visit();
 
-        // As some authentication method will take place
-        // after the middleware are executed, we'll wait
-        // for this last moment to set the user id, if 
-        // present.
-        if($this->guard->user()) {
-            $visit->setUserId($this->guard->user()->id);
-        }
-
         if($visit && $this->metricManager->isRequestTracked()) {
+
+            // As some authentication method will take place
+            // after the middleware are executed, we'll wait
+            // for this last moment to set the user id, if 
+            // present.
+            if($this->guard->user()) {
+                $visit->setUserId($this->guard->user()->id);
+            }
 
             $this->metricManager->processDataProviders();
 
