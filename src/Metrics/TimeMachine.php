@@ -37,6 +37,10 @@ class TimeMachine
         // to the cookie used in the current visit.
         $lastVisit = $this->visits->lastVisitFromUser($userId);
 
+        if($lastVisit === null) {
+            return false;
+        }
+
         if($currentCookie != $lastVisit->getCookie())
         {
             // If the value is different, we'll set the current visit's cookie
