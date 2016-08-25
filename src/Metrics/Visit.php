@@ -183,6 +183,18 @@ class Visit implements Arrayable
     }
 
     /**
+     * Set laravel cookie
+     *
+     * @param  string $cookie
+     * 
+     * @return void
+     */
+    public function setCookie($cookie)
+    {
+        $this->cookie = $cookie;
+    }
+
+    /**
      * Return date
      * 
      * @return Carbon\Carbon
