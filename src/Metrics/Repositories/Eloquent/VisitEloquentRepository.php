@@ -105,7 +105,7 @@ class VisitEloquentRepository implements VisitRepository
      */
     public function translateCookie($oldCookie, $newCookie)
     {
-        return $this->getQueryBuilder()->where('cookie', $oldCookie)->update(['cookie', $newCookie]);
+        return $this->getQueryBuilder()->where('cookie', $oldCookie)->update(['cookie' => $newCookie]);
     }
 
     /**
