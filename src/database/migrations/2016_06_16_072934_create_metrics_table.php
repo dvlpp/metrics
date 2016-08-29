@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMetricsStatTable extends Migration
+class CreateMetricsTable extends Migration
 {
     /**
      * Run the migrations.
