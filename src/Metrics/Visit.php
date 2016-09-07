@@ -101,7 +101,7 @@ class Visit implements Arrayable
         else {
             $visit->cookie = str_random(32);
         }
-        $visit->user_agent = $request->server('HTTP_USER_AGENT');
+        $visit->user_agent = $request->server('HTTP_USER_AGENT') ? $request->server('HTTP_USER_AGENT') : 'undefined';
         return $visit;
     }
 
