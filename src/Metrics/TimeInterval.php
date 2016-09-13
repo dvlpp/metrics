@@ -14,7 +14,7 @@ class TimeInterval {
 
     protected $type;
 
-    public function __construct(Carbon $start, Carbon $end, $type)
+    public function __construct(Carbon $start, Carbon $end, $type = null)
     {
         // We'll use copy() to make sure no other portion of the code
         // will modify the Carbon objects
@@ -105,7 +105,6 @@ class TimeInterval {
          // DST behaviour for us.
         while($start->$basePeriod == $base) {
             
-
             // Compensating for the missing Carbon endOfHour() method...
             if($type == Metric::DAILY) {
                 $end = $this->endOfHour($start->copy());
