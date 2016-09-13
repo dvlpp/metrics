@@ -29,8 +29,6 @@ class CreateMetricsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('metrics_metrics', function(Blueprint $table) {
-            Schema::drop('metric_metrics');
-        });
+        Schema::drop('metric_metrics');
     }
 }

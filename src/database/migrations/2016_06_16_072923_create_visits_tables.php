@@ -33,6 +33,6 @@ class CreateVisitsTables extends Migration
      */
     public function down()
     {
-        Schema::drop('visits');
+        Schema::drop('metric_visits');
     }
 }
