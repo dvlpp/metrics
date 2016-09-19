@@ -3,17 +3,13 @@
 namespace Dvlpp\Metrics\Listeners;
 
 use Illuminate\Auth\Events\Login;
-use Dvlpp\Metrics\Manager;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Dvlpp\Metrics\Actions\UserLoginAction;
+use Dvlpp\Metrics\Jobs\MarkPreviousUserVisits;
 
-class LoginListener {
-
-    protected $manager;
-
-    public function __construct(Manager $manager)
-    {
-        $this->manager = $manager;
-    }
+class LoginListener 
+{
+    use DispatchesJobs;
 
     /**
      * Handle the event.
@@ -28,7 +24,8 @@ class LoginListener {
         $this->manager->action($action);
 
         // Then we tell the manager to go look back in time for untracked visits
-        $this->manager->markPreviousUserVisits($event->user->id);
+        $job = new MarkPreviousUserVisits($event->user);
+        $this->dispatch($job);
     }
 
 }

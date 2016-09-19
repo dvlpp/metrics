@@ -6,7 +6,8 @@ use Dvlpp\Metrics\Manager;
 use Illuminate\Auth\Events\Logout;
 use Dvlpp\Metrics\Actions\UserLogoutAction;
 
-class LogoutListener {
+class LogoutListener 
+{
 
     protected $manager;
 
@@ -26,8 +27,6 @@ class LogoutListener {
         // We add a user login action
         $action = new UserLogoutAction($event->user->id);
         $this->manager->action($action);
-
-        
     }
 
 }
