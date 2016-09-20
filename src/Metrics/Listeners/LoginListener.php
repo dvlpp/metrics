@@ -6,10 +6,21 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Dvlpp\Metrics\Actions\UserLoginAction;
 use Dvlpp\Metrics\Jobs\MarkPreviousUserVisits;
+use Dvlpp\Metrics\Manager;
 
 class LoginListener 
 {
     use DispatchesJobs;
+
+    /**
+     * @var Manager
+     */
+    protected $manager;
+
+    public function __construct(Manager $manager)
+    {
+        $this->manager = $manager;
+    }
 
     /**
      * Handle the event.
