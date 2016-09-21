@@ -16,9 +16,18 @@ class TimeMachine
      */
     protected $currentVisit;
 
-    public function __construct(VisitRepository $visits, Visit $currentVisit)
+    public function __construct(VisitRepository $visits)
     {
         $this->visits = $visits;
+    }
+
+    /**
+     * Set Current Visit
+     * 
+     * @param Visit $currentVisit 
+     */
+    public function setCurrentVisit(Visit $currentVisit)
+    {
         $this->currentVisit = $currentVisit;
     }
 

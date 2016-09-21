@@ -177,7 +177,6 @@ class Manager
         if($this->isRequestTracked() )
         {
             $timeMachine = $this->getTimeMachine();
-
             return $timeMachine->lookup($userId);
         }
         else {
@@ -192,10 +191,9 @@ class Manager
      */
     protected function getTimeMachine()
     {
-        return new TimeMachine(
-            $this->app->make(VisitRepository::class),
-            $this->visit()
-        );
+        $timeMachine = $this->app->make(TimeMachine::class);
+        $timeMachine->setCurrentVisit($this->visit());
+        return $timeMachine;
     }
 
     /**

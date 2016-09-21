@@ -106,4 +106,19 @@ class UpdaterTest extends MetricTestCase
         $metric = $metrics->find($period);
         $this->assertNull($metric);
     }
+
+    /** @test */
+    public function we_create_statistics_for_larger_periods_when_there_is_data()
+    {
+        $start = Carbon::create(2016,1,2,0,0,0);
+        $end = Carbon::create(2016,1,2,23,59,59);
+        $this->createVisitsByDate(50, $start, $end);
+        $this->updater->update();
+        $start = Carbon::create(2016,1,1,0,0,0);
+        $end = Carbon::create(2016,12,31,23,59,59);
+        $period = new TimeInterval($start, $end, Metric::YEARLY);
+        $metrics = $this->app->make(Dvlpp\Metrics\Repositories\MetricRepository::class);
+        $metric = $metrics->find($period);
+        $this->assertNotNull($metric);
+    }
 }

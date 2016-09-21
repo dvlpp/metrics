@@ -38,7 +38,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         $this->app['config']->set('database.connections.sqlite.database', ':memory:');
 
         $this->migrateDatabase();
-        $this->seedDatabase();
+        $this->addLoginRoute();
     }
 
     /**
@@ -66,6 +66,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
     {
         $migrationPaths = [
             __DIR__ . "/../src/database/migrations",
+            __DIR__ . "/../vendor/laravel/laravel/database/migrations",
         ];
 
         foreach($migrationPaths as $path) {
@@ -93,14 +94,22 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         }
     }
 
-    protected function seedDatabase()
+    /**
+     * Add a login route for testing purpose
+     *
+     * @return void
+     */
+    protected function addLoginRoute()
     {
-        Model::unguard();
-        
-        //
-        //
-        Model::reguard();
+        $router = $this->app->make('router');
+        $router->post('auth', function(Illuminate\Http\Request $request) {
+            $result = Auth::attempt([
+                'email' => $request->email,
+                'password' => $request->password,
+            ]);
+        });
     }
+
 
     // Generate fake visits we can parse for metrics
     // (don't create them in database)
@@ -200,6 +209,20 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         return Visit::createFromArray($data);
     }
 
+    /**
+     * Create a User
+     * 
+     * @return App\User
+     */
+    protected function createTestUser()
+    {
+        $user = new App\User;
+        $user->name = 'marty mc fly';
+        $user->email = 'test@example.net';
+        $user->password = bcrypt('test');
+        $user->save();
+        return $user;
+    }
 
 }
 

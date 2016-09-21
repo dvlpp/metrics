@@ -32,6 +32,9 @@ class MetricMiddleware
         if(! $request->server('HTTP_DNT') == 1) {
             $this->metricManager->track(Visit::createFromRequest($request));
         }
+        else {
+            $this->metricManager->setTrackingOff();
+        }
         
         return $next($request);
     }

@@ -23,5 +23,4 @@ class VisitModel extends Model
         'date',
     ];
 
-
 }

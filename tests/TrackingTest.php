@@ -4,6 +4,9 @@ use Stubs\AcmeAction;
 use Stubs\AcmeProvider;
 use Dvlpp\Metrics\Manager;
 use Dvlpp\Metrics\Visit;
+use Dvlpp\Metrics\Repositories\Eloquent\VisitModel;
+use Illuminate\Auth\Events\Login;
+use Dvlpp\Metrics\TimeMachine;
 
 class TrackingTest extends MetricTestCase
 {
@@ -64,4 +67,46 @@ class TrackingTest extends MetricTestCase
         $manager->action(new AcmeAction('test'));
         $manager->markPreviousUserVisits(1);
     }
+
+    /** @test */
+    public function login_the_user_triggers_the_time_machine()
+    {   
+        $user = $this->createTestUser();
+        $timeMachine = Mockery::mock(TimeMachine::class);
+        $timeMachine->shouldReceive('setCurrentVisit')->once();
+        $timeMachine->shouldReceive('lookup')->once()->with($user->id);
+        $this->app->bind(TimeMachine::class, function ($app) use ($timeMachine) {
+            return $timeMachine;
+        });
+
+        $data = [
+            'email' => 'test@example.net',
+            'password' => 'test',
+        ];
+        //$this->expectsEvents(Login::class);
+        $result = $this->post('auth', $data);
+    }
+
+    /** @test */
+    public function we_dont_track_the_user_when_do_not_track_header_is_set()
+    {
+        $headers=['HTTP_DNT' => 1];
+        $result = $this->get('/', $headers);
+        $this->assertEquals(0, VisitModel::count());
+    }
+
+    /** @test */
+    public function time_machine_wont_break_when_do_not_track_header_is_set()
+    {
+        $headers=['HTTP_DNT' => 1];
+        $user = $this->createTestUser();
+        $data = [
+            'email' => 'test@example.net',
+            'password' => 'test',
+        ];
+        $result = $this->post('auth', $data, $headers);
+        $this->assertEquals(0, VisitModel::count());
+    }
+
+
 }
