@@ -85,8 +85,14 @@ class Updater
             });
 
             foreach ($sortedPeriods as $period) {
+                
+                // Process will return false if there was no data to handle in
+                // a given period.
                 $metric = $this->process($period);
-                $this->metrics->store($metric);
+
+                if($metric) {
+                    $this->metrics->store($metric);
+                }
             }
 
             return true;
@@ -101,7 +107,7 @@ class Updater
      * Process  a metric for a given period
      * 
      * @param  TimeInterval $period 
-     * @return  Metric
+     * @return  Metric|null
      */
     protected function process(TimeInterval $period)
     {
@@ -110,7 +116,13 @@ class Updater
         }
         else {
             $metric = $this->processAnalyze($period);
-            $metric = $this->processConsolidate($period, $metric);
+            
+            // A Metric object will only be returned if there is
+            // data to analyze in the given period. If no data,
+            // there is no use in consolidate them.
+            if($metric) {
+                $metric = $this->processConsolidate($period, $metric);    
+            }   
         }
         return $metric;
     }
@@ -132,7 +144,8 @@ class Updater
             $metric = Metric::create($period, $statistics, count($visits));
         }
         else {
-            $metric = Metric::create($period, [], 0);
+            //$metric = Metric::create($period, [], 0);
+            return null;
         }
 
         return $metric;
@@ -143,7 +156,7 @@ class Updater
      *
      * @param  TimeInterval  $period
      * @param  Metric $metric
-     * @return Metric
+     * @return Metric | null
      */
     protected function processConsolidate(TimeInterval $period, Metric $metric)
     {
@@ -162,7 +175,8 @@ class Updater
             $metric->setStatistics(array_merge($metric->getStatistics(), $statistics));
         }
         else {
-            throw new MetricException("Metrics should'nt be null");
+            return null;
+            //throw new MetricException("Metrics should'nt be null");
         }
 
         return $metric;

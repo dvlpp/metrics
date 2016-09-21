@@ -6,6 +6,7 @@ use Dvlpp\Metrics\Updater;
 use Dvlpp\Metrics\Manager;
 use Dvlpp\Metrics\TimeInterval;
 use Dvlpp\Metrics\Repositories\Eloquent\MetricModel;
+use Dvlpp\Metrics\Repositories\Eloquent\VisitModel;
 
 class UpdaterTest extends MetricTestCase 
 {
@@ -90,4 +91,19 @@ class UpdaterTest extends MetricTestCase
         $this->createVisitsByDate(100000, $start, $end);
         $this->updater->update();
     }*/
+
+    /** @test */
+    public function we_dont_create_metrics_for_periods_with_no_visits()
+    {
+        $start = Carbon::create(2016,1,2,0,0,0);
+        $end = Carbon::create(2016,1,2,23,59,59);
+        $this->createVisitsByDate(50, $start, $end);
+        $this->updater->update();
+        $start = Carbon::create(2016,1,1,0,0,0);
+        $end = Carbon::create(2016,1,1,23,59,59);
+        $period = new TimeInterval($start, $end, Metric::DAILY);
+        $metrics = $this->app->make(Dvlpp\Metrics\Repositories\MetricRepository::class);
+        $metric = $metrics->find($period);
+        $this->assertNull($metric);
+    }
 }
