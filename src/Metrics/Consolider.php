@@ -28,12 +28,6 @@ class Consolider
         $statistics = [];
         foreach($this->consoliders as $consolider) {
             $consoliderStatistics = [];
-
-            // We'll pass directly the collection to the consolider class
-            /*foreach($metrics as $metric) {
-                $consoliderStatistics[] = $metric->getStatisticsByKey(get_class($consolider));
-            }*/
-
             $statistics[get_class($consolider)] = $consolider->consolidate($metrics);
         }
 

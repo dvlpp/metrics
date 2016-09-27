@@ -67,7 +67,26 @@ class AnalyzerTest extends MetricTestCase
                 "val3" => 1,
             ]
         ], $c);
+    }
 
+    /** @test */
+    public function add_array_preserve_keys_if_no_values()
+    {
+        $analyzer = new UserAgentAnalyzer();
+        $a = [
+            'foo' => [
+            ],
+            'bar' => [
+            ]
+        ];
+        $b = [
+            'foo' => [
+            ],
+            'bar' => [
+            ]
+        ];
+        $c = $analyzer->addArrayValues($a,$b);
+        $this->assertEquals($b,$c);
     }
 
     /**

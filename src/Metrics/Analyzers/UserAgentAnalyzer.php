@@ -90,6 +90,7 @@ class UserAgentAnalyzer extends Analyzer
     {
         $compiledArray = [];
         foreach(array_keys($a) as $key) {
+            $compiledArray[$key] = [];
             foreach(array_keys($b[$key]) as $bKey) {
                 if(array_key_exists($bKey, $a[$key])) {
                     $compiledArray[$key][$bKey] = $a[$key][$bKey] + $b[$key][$bKey];
@@ -108,7 +109,8 @@ class UserAgentAnalyzer extends Analyzer
     }
 
     /**
-     * [consolidate description]
+     * Consolidate User Agent Metrics
+     * 
      * @param  Collection $metrics 
      * @return array
      */
