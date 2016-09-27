@@ -211,7 +211,7 @@ class Visit implements Arrayable
      */
     public function getUserAgent()
     {
-        return $this->userAgent;
+        return $this->user_agent;
     }
 
     /**
