@@ -30,7 +30,7 @@ class Manager
     /**
      * @var boolean
      */
-    protected $trackRequest = true;
+    protected $trackRequest = false;
 
     /**
      * @var array

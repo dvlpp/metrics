@@ -30,6 +30,7 @@ class MetricMiddleware
     {
         // Handle the 'Do Not Track' header
         if(! $request->server('HTTP_DNT') == 1) {
+            $this->metricManager->setTrackingOn();
             $this->metricManager->track(Visit::createFromRequest($request));
         }
         else {
