@@ -37,7 +37,7 @@ class LoginListener
         // Then we tell the manager to go look back in time for untracked visits
         $job = new MarkPreviousUserVisits($event->user);
         
-        $this->dispatch($job);
+        $this->dispatchNow($job);
     }
 
 }
