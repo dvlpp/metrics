@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use Dvlpp\Metrics\TimeInterval;
+use Dvlpp\Metrics\Repositories\Eloquent\VisitModel;
 
 class VisitRepositoryTest extends MetricTestCase
 {
@@ -57,4 +58,12 @@ class VisitRepositoryTest extends MetricTestCase
         $this->assertEquals(Carbon::now()->addDay()->endOfDay(), $visit->getDate());
     }
 
+    /** @test */
+    public function we_can_query_for_oldest_cookie()
+    {
+        $this->createVisits(1, '-1 hour');
+        $visit = VisitModel::first();
+        $cookie = $visit->cookie;
+        $visit = $this->repository->oldestVisitForCookie($cookie);
+    }
 }
