@@ -128,7 +128,11 @@ class VisitEloquentRepository implements VisitRepository
      */
     public function oldestVisitForCookie($cookie)
     {
-        return $this->getQueryBuilder()->where('cookie', $cookie)->orderBy('date', 'asc')->first();
+        $visit = $this->getQueryBuilder()->where('cookie', $cookie)->orderBy('date', 'asc')->first();
+
+        if($visit) {
+            return $this->convertObject($visit);
+        }
     }
 
     /**
