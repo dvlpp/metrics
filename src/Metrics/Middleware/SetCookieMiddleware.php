@@ -42,14 +42,14 @@ class SetCookieMiddleware
             
             $value = $visit->getCookie();
             $cookieName = config('metrics.cookie_name');
-
+            $anonCookieName = config('metrics.anonymous_cookie_name');
             if($visit->isAnonymous() ) {
-                $anonCookieName = config('metrics.anonymous_cookie_name');
                 $response->withCookie(cookie()->forever($anonCookieName, $value));
                 $response->withCookie(cookie()->forget($cookieName));
             }
             else {
                 $response->withCookie(cookie()->forever($cookieName, $value)); 
+                $response->withCookie(cookie()->forget($anonCookieName));
             }   
         }
 
