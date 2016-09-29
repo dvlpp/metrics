@@ -19,6 +19,13 @@ class TrackingTest extends MetricTestCase
         $this->app['config']->set('app.key', str_random(32));
     }
 
+    public function test_has_cookie_helper()
+    {
+        $this->app['config']->set('metrics.auto_place_cookie', false);
+        $this->visit("");
+        $this->assertFalse(metrics_has_cookie());
+    }
+
     /** @test */
     public function we_dont_log_a_visit_if_defaults_config_is_to_false()
     {

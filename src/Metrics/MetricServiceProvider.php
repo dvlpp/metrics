@@ -47,16 +47,6 @@ class MetricServiceProvider extends ServiceProvider {
             __DIR__.'/../config/config.php' => config_path($this->packageName.'.php'),
         ], 'config');
 
-        /*if($this->app['config']->get('metrics.auto_place_cookie')) {
-            $this->app[Manager::class]->setTrackingOn();
-        }
-        else {
-            $this->app[Manager::class]->setTrackingOff();
-        }*/
-
-        if($this->app['config']->get('metrics.anonymous')) {
-            $this->app[Manager::class]->setAnonymous();
-        }
     }
 
     /**

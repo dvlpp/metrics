@@ -59,8 +59,8 @@ class VisitCreator
             $visit->setCookie($cookie);
         }
         else {
-            // If no cookie was found, we'll refer to the manager for which cookie to create
-            $anonymousState = $this->manager->isAnonymous();
+            // If no cookie was found, we'll refer to config for which cookie to create
+            $anonymousState = config('metrics.anonymous');
             $visit->setAnonymous($anonymousState);
             $visit->setCookie();
         }

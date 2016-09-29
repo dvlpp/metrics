@@ -20,16 +20,6 @@ class AnonymousTrackingTest extends MetricTestCase
     }
 
     /** @test */
-    public function we_set_an_anonymous_cookie_if_set_anonymous_is_called()
-    {
-        $manager = $this->app->make(Manager::class);
-        $manager->setAnonymous();
-        $response = $this->visit("");
-        $this->assertTrue($manager->visit()->isAnonymous());
-        $this->seeCookie($this->app['config']->get('metrics.anonymous_cookie_name'));
-    }
-
-    /** @test */
     public function we_set_an_anonymous_cookie_if_set_anonymous_is_called_during_the_request()
     {
         $manager = $this->app->make(Manager::class);

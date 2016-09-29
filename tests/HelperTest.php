@@ -16,4 +16,10 @@ class HelperTest extends MetricTestCase {
     {
         metrics_action(new AcmeAction('test'));
     }
+
+    /** @test */
+    public function we_can_call_anonymous_function()
+    {
+        $this->assertNull(metrics_is_anonymous());
+    }    
 }

@@ -202,8 +202,6 @@ class Manager
      */
     public function setAnonymous($anonymous = true)
     {
-        $this->anonymousRequest = $anonymous;
-
         if($anonymous) {
             $visit = $this->visit();
 
@@ -228,11 +226,14 @@ class Manager
     /**
      * Return anonymous state of the request
      * 
-     * @return boolean 
+     * @return boolean|null
      */
     public function isAnonymous()
     {
-        return $this->anonymousRequest;
+        if(! $this->visit()) {
+            return null;
+        }
+        return $this->visit()->isAnonymous();
     }
 
     /**
