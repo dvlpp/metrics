@@ -39,7 +39,7 @@ class SetCookieMiddleware
         if($this->metricManager->isRequestTracked())
         {
             $visit = $this->metricManager->visit();
-
+            
             // If the tracking has been manually Set during
             // the request, we'll have to create the visit 
             // object there. 

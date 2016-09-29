@@ -26,9 +26,11 @@ class TrackingTest extends MetricTestCase
         $this->visit("");
         $manager = $this->app->make(Manager::class);
         $visit = $manager->visit();
-        $this->assertNull($visit);
         $this->assertFalse($manager->isRequestTracked());
         $this->dontSeeCookie($this->app['config']->get('metrics.cookie_name'));
+        $this->dontSeeInDatabase('metric_visits', [
+            'cookie' => $visit->getCookie(),
+        ]);
     }
 
     /** @test */
@@ -48,6 +50,40 @@ class TrackingTest extends MetricTestCase
         $this->seeInDatabase('metric_visits', [
             "cookie" => $visit->getCookie(),
         ]);
+    }
+
+    /** @test */
+    public function we_log_a_visitor_who_already_have_a_metric_cookie()
+    {
+        $this->app['config']->set('metrics.auto_place_cookie', false);
+        $cookieName = $this->app['config']->get('metrics.cookie_name');
+        $cookies = [
+            $cookieName => str_random(32),
+        ];
+        $result = $this->call('GET', '/', [], $cookies);
+        $manager = $this->app->make(Manager::class);
+        $visit = $manager->visit();
+        $this->seeInDatabase('metric_visits', [
+            "cookie" => $visit->getCookie(),
+        ]);
+        $this->seeCookie($this->app['config']->get('metrics.cookie_name'));
+    }
+
+    /** @test */
+    public function we_log_a_visitor_who_already_have_an_anonymous_cookie()
+    {
+        $this->app['config']->set('metrics.auto_place_cookie', false);
+        $cookieName = $this->app['config']->get('metrics.anonymous_cookie_name');
+        $cookies = [
+            $cookieName => str_random(32),
+        ];
+        $result = $this->call('GET', '/', [], $cookies);
+        $manager = $this->app->make(Manager::class);
+        $visit = $manager->visit();
+        $this->seeInDatabase('metric_visits', [
+            "cookie" => $visit->getCookie(),
+        ]);
+        $this->seeCookie($this->app['config']->get('metrics.anonymous_cookie_name'));
     }
 
     /** @test */
