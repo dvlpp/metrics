@@ -216,6 +216,13 @@ class Manager
                 $visit->setCookie();
             }
         }
+        else {
+            $visit = $this->visit();
+            if($visit && $visit->isAnonymous()) {
+                $visit->setAnonymous(false);
+                $visit->setCookie();
+            }
+        }
     }
 
     /**

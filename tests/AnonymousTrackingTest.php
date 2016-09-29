@@ -44,6 +44,19 @@ class AnonymousTrackingTest extends MetricTestCase
     }
 
     /** @test */
+    public function we_set_an_non_anonymous_cookie_if_set_anonymous_is_called_with_falseduring_the_request()
+    {
+        $manager = $this->app->make(Manager::class);
+        $router = $this->app->make('router');
+        $router->get('anonymous', function(Manager $manager) {
+            $manager->setAnonymous(false);
+        });
+        $response = $this->visit("/anonymous");
+        $this->assertFalse($manager->visit()->isAnonymous());
+        $this->seeCookie($this->app['config']->get('metrics.cookie_name'));
+    }
+
+    /** @test */
     public function calling_set_anonymous_with_a_non_anonymous_cookie_value_will_change_it()
     {
         $manager = $this->app->make(Manager::class);
@@ -60,6 +73,31 @@ class AnonymousTrackingTest extends MetricTestCase
         $this->assertTrue($manager->visit()->isAnonymous());
         $this->assertNotEquals($manager->visit()->getCookie(), $cookies[$cookieName]);
         $this->seeCookie($this->app['config']->get('metrics.anonymous_cookie_name'));
+        $this->dontSeeInDatabase('metric_visits', [
+            'cookie' => $cookies[$cookieName],
+        ]);
+        $this->seeInDatabase('metric_visits', [
+            'cookie' => $manager->visit()->getCookie(),
+        ]);
+    }
+
+    /** @test */
+    public function calling_set_anonymous_false_with_an_anonymous_cookie_value_will_change_it()
+    {
+        $manager = $this->app->make(Manager::class);
+
+        $router = $this->app->make('router');
+        $router->get('anonymous', function(Manager $manager) {
+            $manager->setAnonymous(false);
+        });
+        $cookieName = $this->app['config']->get('metrics.anonymous_cookie_name');
+        $cookies = [
+            $cookieName => str_random(32),
+        ];
+        $result = $this->call('GET', 'anonymous', [], $cookies);
+        $this->assertFalse($manager->visit()->isAnonymous());
+        $this->assertNotEquals($manager->visit()->getCookie(), $cookies[$cookieName]);
+        $this->seeCookie($this->app['config']->get('metrics.cookie_name'));
         $this->dontSeeInDatabase('metric_visits', [
             'cookie' => $cookies[$cookieName],
         ]);
