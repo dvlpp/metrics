@@ -50,25 +50,24 @@ class MetricMiddleware
             return $next($request);
         }
 
+         // In the other case, we'll only track the visit
+        // if a Metric cookie already exist in the request
+        if ($request->hasCookie(config('metrics.cookie_name'))) {
+            $this->metricManager->setRequestCookie(true);
+            $this->metricManager->setTrackingOn();
+            return $next($request);
+        }
+        if ($request->hasCookie(config('metrics.anonymous_cookie_name'))) {
+            $this->metricManager->setRequestCookie(true);
+            $this->metricManager->setTrackingOn();
+            return $next($request);
+        }
+
         // If auto_place_cookie is on true, we'll log 
         // the request on every case
         if(config()->get('metrics.auto_place_cookie')) {
             $this->metricManager->setTrackingOn();
             return $next($request);
-        }
-        else {
-            // In the other case, we'll only track the visit
-            // if a Metric cookie already exist in the request
-            if ($request->hasCookie(config('metrics.cookie_name'))) {
-                $this->metricManager->setRequestCookie(true);
-                $this->metricManager->setTrackingOn();
-                return $next($request);
-            }
-            if ($request->hasCookie(config('metrics.anonymous_cookie_name'))) {
-                $this->metricManager->setRequestCookie(true);
-                $this->metricManager->setTrackingOn();
-                return $next($request);
-            }
         }
 
         // In every other case, we'll set the tracking to off
