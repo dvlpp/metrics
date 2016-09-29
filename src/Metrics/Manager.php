@@ -57,6 +57,11 @@ class Manager
      */
     protected $anonymousRequest = false;
 
+    /**
+     * @var boolean
+     */
+    protected $requestHasCookie = false;
+
     public function __construct(Application $app)
     {
         $this->app = $app;
@@ -136,6 +141,27 @@ class Manager
             // an array and add them when initialized.
             $this->pendingActions[] = $action;
         }
+    }
+
+    /**
+     * Flag to tell if the request has the cookie originally set
+     * 
+     * @param boolean $cookie 
+     * @return void
+     */
+    public function setRequestCookie($cookie = true)
+    {
+        $this->requestHasCookie = $cookie;
+    }
+
+    /**
+     * Return true if a metrics cookie was originally found in the request
+     * 
+     * @return boolean
+     */
+    public function isCookieInRequest()
+    {
+        return $this->requestHasCookie;
     }
 
     /**

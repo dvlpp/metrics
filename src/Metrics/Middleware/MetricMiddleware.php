@@ -60,17 +60,18 @@ class MetricMiddleware
             // In the other case, we'll only track the visit
             // if a Metric cookie already exist in the request
             if ($request->hasCookie(config('metrics.cookie_name'))) {
+                $this->metricManager->setRequestCookie(true);
                 $this->metricManager->setTrackingOn();
                 return $next($request);
             }
             if ($request->hasCookie(config('metrics.anonymous_cookie_name'))) {
+                $this->metricManager->setRequestCookie(true);
                 $this->metricManager->setTrackingOn();
                 return $next($request);
             }
         }
 
-        // This shouldn't be reached, but in any other
-        // case, we'll set the tracking to off
+        // In every other case, we'll set the tracking to off
         $this->metricManager->setTrackingOff();
         return $next($request);
     }

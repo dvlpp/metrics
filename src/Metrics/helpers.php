@@ -28,3 +28,16 @@ if (! function_exists('metrics_action')) {
         return app(Manager::class)->action($action);
     }
 }
+
+if (! function_exists('metrics_has_cookie')) {
+    
+    /**
+     * Return true if the request had originally a metrics cookie in it
+     *
+     * @return boolean
+     */
+    function metrics_has_cookie()
+    {
+        return app(Manager::class)->isCookieInRequest();
+    }
+}
