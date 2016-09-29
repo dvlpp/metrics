@@ -14,6 +14,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Auto Place Cookie
+    |--------------------------------------------------------------------------
+    |
+    | This option will tell Metrics to automatically place cookie & log visits. 
+    | This flag is useful to comply with EU registrations with need the user's
+    | consent to place a cookie on their device.
+    |
+    */
+    'auto_place_cookie' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Anonymous tracking
+    |--------------------------------------------------------------------------
+    |
+    | By default, anonymous will link harversted data to a logged user. Set it
+    | to true, will not link user_id to metric data.
+    |
+    */
+    'anonymous' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Cookie Name
     |--------------------------------------------------------------------------
     |
@@ -21,8 +44,31 @@ return [
     | in or not. 
     |
     */
-   'cookie_name' => 'metrics_tracker',
+    'cookie_name' => 'metrics_tracker',
     
+    /*
+    |--------------------------------------------------------------------------
+    | Anonymous Cookie Name
+    |--------------------------------------------------------------------------
+    |
+    | Set cookie name, for anonymous tracking, will track user without linking
+    | harvested data to a user id.
+    |
+    */
+    'anonymous_cookie_name' => 'metrics_anonymous_tracker',
+
+   /*
+    |--------------------------------------------------------------------------
+    | Cookie Lifetime
+    |--------------------------------------------------------------------------
+    |
+    | Life time of a cookie placed on a machine. When lifetime is reached, 
+    | metrics will generate a new cookie for the user's browser. 
+    | Defaults to 13 months, which is the current legit lifetime in the EU
+    |
+    */
+    'cookie_lifetime' => '13 months',
+
     /*
     |--------------------------------------------------------------------------
     | Visits retention time

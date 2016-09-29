@@ -52,6 +52,11 @@ class Manager
      */
     protected $pendingActions = [];
 
+    /**
+     * @var boolean
+     */
+    protected $anonymousRequest = false;
+
     public function __construct(Application $app)
     {
         $this->app = $app;
@@ -164,6 +169,40 @@ class Manager
     public function setTrackingOn()
     {
         $this->trackRequest = true;
+    }
+
+    /**
+     * When this method is called, the cookie that will be placed
+     * on the user's browser will not be attached to its user_id
+     * 
+     * @return void
+     */
+    public function setAnonymous($anonymous = true)
+    {
+        $this->anonymousRequest = $anonymous;
+
+        if($anonymous) {
+            $visit = $this->visit();
+
+            // If the visit is not in anonymous state, it means
+            // either it's a first visit, or the request had
+            // a previous cookie which wasn't anonymous. In that
+            // case, we'll generate a new one.
+            if($visit && ! $visit->isAnonymous()) {
+                $visit->setAnonymous(true);
+                $visit->setCookie();
+            }
+        }
+    }
+
+    /**
+     * Return anonymous state of the request
+     * 
+     * @return boolean 
+     */
+    public function isAnonymous()
+    {
+        return $this->anonymousRequest;
     }
 
     /**

@@ -121,6 +121,17 @@ class VisitEloquentRepository implements VisitRepository
     }
 
     /**
+     * Get oldest visit for given cookie
+     * 
+     * @param  string  $cookie 
+     * @return Visit|null
+     */
+    public function oldestVisitForCookie($cookie)
+    {
+        return $this->getQueryBuilder()->where('cookie', $cookie)->orderBy('date', 'asc')->first();
+    }
+
+    /**
      * Return all visits for a given interval
      * 
      * @param  Carbon $start
@@ -145,7 +156,7 @@ class VisitEloquentRepository implements VisitRepository
     public function store(Visit $visit)
     {
         $attributes = $visit->toArray();
-
+        
         if(isset($attributes['id']) && $attributes['id'] !== null) {
             return $this->saveExisting($attributes);
         }

@@ -5,6 +5,7 @@ namespace Dvlpp\Metrics\Middleware;
 use Closure;
 use Dvlpp\Metrics\Visit;
 use Dvlpp\Metrics\Manager;
+use Dvlpp\Metrics\VisitCreator;
 
 class MetricMiddleware
 {
@@ -13,9 +14,15 @@ class MetricMiddleware
      */
     protected $metricManager;
 
-    public function __construct(Manager $metricManager)
+    /**
+     * @var VisitCreator
+     */
+    protected $visitCreator;
+
+    public function __construct(Manager $metricManager, VisitCreator $creator)
     {
         $this->metricManager = $metricManager;
+        $this->visitCreator = $creator;
     }
 
     /**
@@ -29,9 +36,13 @@ class MetricMiddleware
     public function handle($request, Closure $next)
     {
         // Handle the 'Do Not Track' header
-        if(! $request->server('HTTP_DNT') == 1) {
+        if(! $request->server('HTTP_DNT') == 1 && $this->metricManager->isRequestTracked())
+            /*config()->get('metrics.enable') && 
+            config()->get('metrics.auto_track')) */
+        {
             $this->metricManager->setTrackingOn();
-            $this->metricManager->track(Visit::createFromRequest($request));
+            $visit = $this->visitCreator->createFromRequest($request);
+            $this->metricManager->track($visit);
         }
         else {
             $this->metricManager->setTrackingOff();

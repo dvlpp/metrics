@@ -54,12 +54,12 @@ class StoreMetricMiddleware
             // after the middleware are executed, we'll wait
             // for this last moment to set the user id, if 
             // present.
-            if($this->guard->user()) {
+            if(! $visit->isAnonymous() && $this->guard->user()) {
                 $visit->setUserId($this->guard->user()->id);
             }
 
             $this->metricManager->processDataProviders();
-
+            
             $this->visits->store($this->metricManager->visit());    
         }
         

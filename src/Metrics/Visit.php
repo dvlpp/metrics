@@ -3,7 +3,6 @@
 namespace Dvlpp\Metrics;
 
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Support\Arrayable;
 
@@ -77,32 +76,16 @@ class Visit implements Arrayable
      */
     protected $date;
 
+    /**
+     * Anonymous flag
+     * 
+     * @var boolean
+     */
+    protected $anonymous;
+
     public function __construct()
     {
         $this->actions = new Collection;
-    }
-
-    /**
-     * Create a Visit instance from a Request object
-     * 
-     * @param  Request $request
-     * @return Visit
-     */
-    public static function createFromRequest(Request $request)
-    {
-        $visit = new Static;
-        $visit->date = Carbon::now();
-        $visit->url = $request->getUri();
-        $visit->referer = $request->server('HTTP_REFERER');
-        $visit->ip = $request->ip();
-        if($request->hasCookie(config('metrics.cookie_name'))) {
-            $visit->cookie = $request->cookies->get(config('metrics.cookie_name'));    
-        }
-        else {
-            $visit->cookie = str_random(32);
-        }
-        $visit->user_agent = $request->server('HTTP_USER_AGENT') ? $request->server('HTTP_USER_AGENT') : 'undefined';
-        return $visit;
     }
 
     /**
@@ -126,10 +109,31 @@ class Visit implements Arrayable
         $visit->referer = $data['referer'];
         $visit->date = $data['date'];
         $visit->cookie = $data['cookie'];
+        $visit->anonymous = $data['anonymous'];
         foreach($data['actions'] as $action) {
             $visit->addAction(unserialize($action));
         }
         return $visit;
+    }
+
+    /**
+     * Set anonymous flag
+     * 
+     * @param boolean $anonymous 
+     */
+    public function setAnonymous($anonymous = true)
+    {
+        $this->anonymous = $anonymous;
+    }
+
+    /**
+     * Is Visit anonymous ?
+     * 
+     * @return boolean
+     */
+    public function isAnonymous()
+    {
+        return $this->anonymous;
     }
 
     /**
@@ -163,6 +167,26 @@ class Visit implements Arrayable
     }
 
     /**
+     * Set the Url
+     * 
+     * @param string $url
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
+    }
+
+    /**
+     * Set referer
+     * 
+     * @param string $referer
+     */
+    public function setReferer($referer)
+    {
+        $this->referer = $referer;
+    }
+
+    /**
      * Get request IP
      * 
      * @return string
@@ -170,6 +194,17 @@ class Visit implements Arrayable
     public function getIp()
     {
         return $this->ip;
+    }
+
+    /**
+     * Set IP Address
+     * 
+     * @param string $ip
+     * @return void
+     */
+    public function setIp($ip)
+    {
+        $this->ip = $ip;
     }
 
     /**
@@ -183,15 +218,18 @@ class Visit implements Arrayable
     }
 
     /**
-     * Set laravel cookie
-     *
-     * @param  string $cookie
+     * Set cookie
      * 
-     * @return void
+     * @param string $cookie
      */
-    public function setCookie($cookie)
+    public function setCookie($cookie = null)
     {
-        $this->cookie = $cookie;
+        if($cookie) {
+            $this->cookie = $cookie;
+        }
+        else {
+            $this->cookie = str_random(32);
+        }
     }
 
     /**
@@ -205,6 +243,16 @@ class Visit implements Arrayable
     }
 
     /**
+     * Set date
+     * 
+     * @param Carbon $date [description]
+     */
+    public function setDate(Carbon $date)
+    {   
+        $this->date = $date;
+    }
+
+    /**
      * Return user agent 
      * 
      * @return string
@@ -212,6 +260,16 @@ class Visit implements Arrayable
     public function getUserAgent()
     {
         return $this->user_agent;
+    }
+
+    /**
+     * Set User Agent
+     *
+     * @param string $userAgent
+     */
+    public function setUserAgent($userAgent)
+    {
+        $this->user_agent = $userAgent;
     }
 
     /**
@@ -319,6 +377,7 @@ class Visit implements Arrayable
             'url' => $this->url,
             'referer' => $this->referer,
             'date' => $this->date,
+            'anonymous' => $this->anonymous,
         ];
     }
 

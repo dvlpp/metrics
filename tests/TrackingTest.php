@@ -20,11 +20,44 @@ class TrackingTest extends MetricTestCase
     }
 
     /** @test */
-    public function we_log_a_visit_by_default()
+    public function we_dont_log_a_visit_if_defaults_config_is_to_false()
     {
+        $this->app['config']->set('metrics.auto_place_cookie', false);
+        $this->visit("");
+        $manager = $this->app->make(Manager::class);
+        $visit = $manager->visit();
+        $this->assertNull($visit);
+        $this->assertFalse($manager->isRequestTracked());
+        $this->dontSeeCookie($this->app['config']->get('metrics.cookie_name'));
+    }
+
+    /** @test */
+    public function we_log_a_visit_if_tracking_is_manually_during_request()
+    {
+        $this->app['config']->set('metrics.auto_place_cookie', false);
+        $router = $this->app->make('router');
+        $router->get('log', function(Manager $manager) {
+            $manager->setTrackingOn();
+        });
+        $this->visit('/log');
+        $manager = $this->app->make(Manager::class);
+        $visit = $manager->visit();
+        $this->assertNotNull($visit);
+        $this->assertTrue($manager->isRequestTracked());
+        $this->seeCookie($this->app['config']->get('metrics.cookie_name'));
+        $this->seeInDatabase('metric_visits', [
+            "cookie" => $visit->getCookie(),
+        ]);
+    }
+
+    /** @test */
+    public function we_log_a_visit_if_defaults_config_is_to_true()
+    {
+        $this->app['config']->set('metrics.auto_place_cookie', true);
         $this->visit("");
         $manager = $this->app->make(Manager::class);
         $this->assertInstanceOf(Visit::class, $manager->visit());
+        $this->seeCookie($this->app['config']->get('metrics.cookie_name'));
     }
 
     /** @test */

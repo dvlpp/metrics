@@ -30,14 +30,17 @@ class LoginListener
      */
     public function handle(Login $event)
     {
-        // We add a user login action
-        $action = new UserLoginAction($event->user->id);
-        $this->manager->action($action);
+        if($this->manager->isRequestTracked() && ! $this->manager->visit()->isAnonymous())
+        {
+            // We add a user login action
+            $action = new UserLoginAction($event->user->id);
+            $this->manager->action($action);
 
-        // Then we tell the manager to go look back in time for untracked visits
-        $job = new MarkPreviousUserVisits($event->user);
-        
-        $this->dispatchNow($job);
+            // Then we tell the manager to go look back in time for untracked visits
+            $job = new MarkPreviousUserVisits($event->user);
+            
+            $this->dispatchNow($job);
+        }
     }
 
 }

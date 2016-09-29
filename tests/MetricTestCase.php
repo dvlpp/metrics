@@ -201,6 +201,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
             'referer' => '',
             'actions' => [],
             'custom' => [],
+            'anonymous' => false,
         ];
         foreach($attributes as $key => $value) {
             $data[$key] = $value;
@@ -224,29 +225,23 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         return $user;
     }
 
-}
-
-// Test debug helper
-if(! function_exists('tdd'))
-{
-    $tdd_status = false;
-
-    function tdd($expression)
+    /**
+     * Asserts that the response doesn't contain the given cookie.
+     *
+     * @param  string $cookieName
+     * @return $this
+     */
+    protected function dontSeeCookie($cookieName)
     {
-        global $tdd_status;
-
-        if($tdd_status) dd($expression);
-    }
-
-    function setTddOn()
-    {
-        global $tdd_status;
-        $tdd_status = true;
-    }
-
-    function setTddOff()
-    {
-        global $tdd_status;
-        $tdd_status = false;
+        $headers = $this->response->headers;
+        $exist = false;
+        foreach ($headers->getCookies() as $cookie) {
+            if ($cookie->getName() === $cookieName) {
+                $exist = true;
+                break;
+            }
+        }
+        $this->assertFalse($exist, "Cookie [{$cookieName}] was found.");
+        return $this;
     }
 }

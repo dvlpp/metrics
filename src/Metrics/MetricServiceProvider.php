@@ -47,8 +47,15 @@ class MetricServiceProvider extends ServiceProvider {
             __DIR__.'/../config/config.php' => config_path($this->packageName.'.php'),
         ], 'config');
 
-        if(! $this->app['config']->get('metrics.enable')) {
-            $this->app(Manager::class)->setTrackingOff();
+        /*if($this->app['config']->get('metrics.auto_place_cookie')) {
+            $this->app[Manager::class]->setTrackingOn();
+        }
+        else {
+            $this->app[Manager::class]->setTrackingOff();
+        }*/
+
+        if($this->app['config']->get('metrics.anonymous')) {
+            $this->app[Manager::class]->setAnonymous();
         }
     }
 
@@ -68,9 +75,11 @@ class MetricServiceProvider extends ServiceProvider {
             return new Manager($app);
         });
 
-        $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependMiddleware(MetricMiddleware::class);
-        $this->app[\Illuminate\Contracts\Http\Kernel::class]->pushMiddleware(StoreMetricMiddleware::class);
-        $this->app[\Illuminate\Contracts\Http\Kernel::class]->pushMiddleware(SetCookieMiddleware::class);
+        if($this->app['config']->get('metrics.enable')) {
+            $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependMiddleware(MetricMiddleware::class);
+            $this->app[\Illuminate\Contracts\Http\Kernel::class]->pushMiddleware(StoreMetricMiddleware::class);
+            $this->app[\Illuminate\Contracts\Http\Kernel::class]->pushMiddleware(SetCookieMiddleware::class);
+        }
 
         $router = $this->app['router'];
         $router->middleware('no_tracking', NoTrackingMiddleware::class);
@@ -86,9 +95,11 @@ class MetricServiceProvider extends ServiceProvider {
     protected function registerListeners()
     {
         $events = $this->app['events'];
-
-        $events->listen(Login::class, LoginListener::class);
-        $events->listen(Logout::class, LogoutListener::class);
+        
+        if($this->app['config']->get('metrics.enable')) {
+            $events->listen(Login::class, LoginListener::class);
+            $events->listen(Logout::class, LogoutListener::class);
+        }
     }
 
 }
