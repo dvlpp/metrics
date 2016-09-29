@@ -96,7 +96,8 @@ class Manager
     public function track(Visit $visit)
     {
         if($this->visit != null) {
-            throw new TrackingException('Tracking object $visit cannot be set twice');
+            //throw new TrackingException('Tracking object $visit cannot be set twice');
+            return $this;
         }
         
         $this->visit = $visit;

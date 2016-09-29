@@ -18,7 +18,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This option will tell Metrics to automatically place cookie & log visits. 
-    | This flag is useful to comply with EU registrations with need the user's
+    | This flag is useful to comply with EU legislation wich require the user's
     | consent to place a cookie on their device.
     |
     */
