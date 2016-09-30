@@ -166,6 +166,7 @@ class TrackingTest extends MetricTestCase
     /** @test */
     public function we_dont_track_the_user_when_do_not_track_header_is_set()
     {
+        $this->app['config']->set('metrics.auto_place_cookie', false);
         $headers=['HTTP_DNT' => 1];
         $result = $this->get('/', $headers);
         $this->assertEquals(0, VisitModel::count());
@@ -174,6 +175,7 @@ class TrackingTest extends MetricTestCase
     /** @test */
     public function time_machine_wont_break_when_do_not_track_header_is_set()
     {
+        $this->app['config']->set('metrics.auto_place_cookie', false);
         $headers=['HTTP_DNT' => 1];
         $user = $this->createTestUser();
         $data = [
