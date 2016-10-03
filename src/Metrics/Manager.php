@@ -364,7 +364,12 @@ class Manager
     {
         $filteredUrls = $this->app->make('config')->get('metrics.filtered_urls');
 
-        return call_user_func_array([$request, 'is'], $filteredUrls);
+        if(is_array($filteredUrls)) {
+            return call_user_func_array([$request, 'is'], $filteredUrls);
+        }
+        else {
+            return false;
+        }
     }
 
 }
