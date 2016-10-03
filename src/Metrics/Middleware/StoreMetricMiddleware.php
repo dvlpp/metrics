@@ -48,7 +48,7 @@ class StoreMetricMiddleware
     {
         $visit = $this->metricManager->visit();
 
-        if($visit && $this->metricManager->isRequestTracked()) {
+        if($visit && $this->metricManager->isRequestTracked() && ! $this->metricManager->isFiltered($request)) {
 
             // As some authentication method will take place
             // after the middleware are executed, we'll wait

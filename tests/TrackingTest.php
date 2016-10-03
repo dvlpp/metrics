@@ -186,5 +186,34 @@ class TrackingTest extends MetricTestCase
         $this->assertEquals(0, VisitModel::count());
     }
 
+    /** @test */
+    public function it_filters_urls_in_config()
+    {
+        $this->app['config']->set('metrics.filtered_urls', [
+            'admin*',
+            'backend/somepage',
+        ]);
+        
+        $router = $this->app->make('router');
+        $router->get('admin', function() {
+            return response();
+        });
+        
+        $router->get('admin/articles', function() {
+            return response();
+        });
 
+        // Query url and sub url and check it's not logged
+        $result = $this->get('/admin/asokoas/askosa');
+        $this->assertEquals(0, VisitModel::count());
+
+        $result = $this->get('/admin');
+        $this->assertEquals(0, VisitModel::count());
+
+        $result = $this->get('backend/somepage');
+        $this->assertEquals(0, VisitModel::count());
+
+        $result = $this->get('backend/somepage/subpage');
+        $this->assertEquals(1, VisitModel::count());
+    }
 }

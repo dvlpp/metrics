@@ -119,5 +119,17 @@ return [
         ],
    ],
 
-
+    /*
+    |--------------------------------------------------------------------------
+    | Filtered URLs
+    |--------------------------------------------------------------------------
+    |
+    | Some parts of the Application, such as an admin dashboard, may not be
+    | relevent to log into Metrics, you can specify them here. 
+    |
+    | 
+    |
+    */
+    'filtered_urls' => []
+   
 ];

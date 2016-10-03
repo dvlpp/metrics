@@ -28,7 +28,7 @@ class AnonymousTrackingTest extends MetricTestCase
         $router->get('anonymous', function(Manager $manager) {
             $manager->setAnonymous();
         });
-        $response = $this->visit("/anonymous");
+        $response = $this->visit("anonymous");
         $this->assertTrue($manager->visit()->isAnonymous());
         $this->seeCookie($this->app['config']->get('metrics.anonymous_cookie_name'));
     }
@@ -59,7 +59,7 @@ class AnonymousTrackingTest extends MetricTestCase
         $cookies = [
             $cookieName => str_random(32),
         ];
-        $result = $this->call('GET', 'anonymous', [], $cookies);
+        $result = $this->call('GET', '/anonymous', [], $cookies);
         $this->assertTrue($manager->visit()->isAnonymous());
         $this->assertNotEquals($manager->visit()->getCookie(), $cookies[$cookieName]);
         $this->seeCookie($this->app['config']->get('metrics.anonymous_cookie_name'));

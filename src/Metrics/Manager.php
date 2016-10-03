@@ -5,6 +5,7 @@ namespace Dvlpp\Metrics;
 use Closure;
 use Carbon\Carbon;
 use InvalidArgumentException;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
 use Dvlpp\Metrics\Exceptions\TrackingException;
 use Dvlpp\Metrics\Exceptions\MetricException;
@@ -351,6 +352,19 @@ class Manager
                 return Metric::YEARLY;
         }
         throw new MetricException("Invalid period in config : $period");
+    }
+
+    /**
+     * Return true if the URL should not be logged as of user configuration
+     *
+     * @param  Request $request
+     * @return boolean     
+     */
+    public function isFiltered(Request $request)
+    {
+        $filteredUrls = $this->app->make('config')->get('metrics.filtered_urls');
+
+        return call_user_func_array([$request, 'is'], $filteredUrls);
     }
 
 }
