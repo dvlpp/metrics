@@ -35,7 +35,7 @@ class SetCookieMiddleware
     public function handle($request, Closure $next)
     {   
         $response = $next($request);
-
+        
         if($this->metricManager->isRequestTracked())
         {
             $visit = $this->metricManager->visit();
@@ -44,12 +44,12 @@ class SetCookieMiddleware
             $cookieName = config('metrics.cookie_name');
             $anonCookieName = config('metrics.anonymous_cookie_name');
             if($visit->isAnonymous() ) {
-                $response->withCookie(cookie()->forever($anonCookieName, $value));
-                $response->withCookie(cookie()->forget($cookieName));
+                $response->headers->setCookie(cookie()->forever($anonCookieName, $value));
+                $response->headers->setCookie(cookie()->forget($cookieName));
             }
             else {
-                $response->withCookie(cookie()->forever($cookieName, $value)); 
-                $response->withCookie(cookie()->forget($anonCookieName));
+                $response->headers->setCookie(cookie()->forever($cookieName, $value)); 
+                $response->headers->setCookie(cookie()->forget($anonCookieName));
             }   
         }
 

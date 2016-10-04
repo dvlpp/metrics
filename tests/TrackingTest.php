@@ -216,4 +216,16 @@ class TrackingTest extends MetricTestCase
         $result = $this->get('backend/somepage/subpage');
         $this->assertEquals(1, VisitModel::count());
     }
+
+    /** @test */
+    public function we_can_track_request_that_send_json_responses()
+    {
+        $router = $this->app->make('router');
+        $router->get('json', function() {
+            return response()->json(['test' => 'test']);
+        });
+        $result = $this->get('/json');
+        $this->assertResponseStatus(200);
+        $this->assertEquals(1, VisitModel::count());
+    }
 }
