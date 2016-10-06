@@ -98,7 +98,7 @@ class Updater
                     $this->info("Analyzed & Stored : $metric");
                 }
                 else {
-                    $this->warning("No data for period : $metric");
+                    $this->warning("No data for period : $period");
                 }
             }
 

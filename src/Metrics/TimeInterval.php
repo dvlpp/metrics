@@ -128,4 +128,35 @@ class TimeInterval {
     {
         return $date->minute(59)->second(59);
     }
+
+    public function getTypeString()
+    {
+        $type = $this->type;
+
+        switch($type) {
+            case Metric::HOURLY:
+                return 'Hourly';
+            case Metric::DAILY:
+                return 'Daily';
+            case Metric::MONTHLY:
+                return 'Monthly';
+            case Metric::YEARLY:
+                return 'Monthly';
+        }
+
+        return 'Undefined';
+    }
+
+    /**
+     * String representation of the period 
+     * 
+     * @return string 
+     */
+    public function __toString()
+    {
+        $start = $this->start->toDateTimeString();
+        $end = $this->end->toDateTimeString();
+        $type = $this->getTypeString();
+        return "$type time interval from $start to $end";
+    }
 }
