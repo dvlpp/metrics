@@ -7,9 +7,12 @@ use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Exceptions\MetricException;
 use Dvlpp\Metrics\Repositories\MetricRepository;
 use Dvlpp\Metrics\Repositories\VisitRepository;
+use Dvlpp\Metrics\Tools\LogToConsoleTrait;
 
 class Updater 
 {
+    use LogToConsoleTrait;
+
     /**
      * @var MetricRepository
      */
@@ -92,6 +95,10 @@ class Updater
 
                 if($metric) {
                     $this->metrics->store($metric);
+                    $this->info("Analyzed & Stored : $metric");
+                }
+                else {
+                    $this->warning("No data for period : $metric");
                 }
             }
 

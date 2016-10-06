@@ -24,7 +24,6 @@ class Consolider
      */
     public function consolidate(Collection $metrics)
     {
-
         $statistics = [];
         foreach($this->consoliders as $consolider) {
             $consoliderStatistics = [];

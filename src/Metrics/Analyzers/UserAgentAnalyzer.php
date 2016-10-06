@@ -117,6 +117,13 @@ class UserAgentAnalyzer extends Analyzer
     public function consolidate(Collection $metrics)
     {
         $self = $this;
+
+        // Filter out Metrics that would have no data
+        $metrics = $metrics->filter(function($item) use ($self) {
+            $stats = $item->getStatisticsByKey(get_class($self));
+            return count($stats) == 0 ? false : true;
+        });
+        
         $data = $metrics->reduce(function ($carry, $item) use ($self) {
             $stats = $item->getStatisticsByKey(get_class($self));
             return $this->addArrayValues($carry, $stats);

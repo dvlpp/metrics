@@ -46,6 +46,8 @@ class UpdateCommand extends Command
     {
         $updater = $this->manager->getUpdater();
 
+        $updater->setConsole($this);
+        
         $result = $updater->update();
 
         if($result === true) {

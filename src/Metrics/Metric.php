@@ -86,6 +86,22 @@ class Metric
         return $this->type;
     }
 
+    public function getTypeString()
+    {
+        $type = $this->type;
+
+        switch($type) {
+            case static::HOURLY:
+                return 'Hourly';
+            case static::DAILY:
+                return 'Daily';
+            case static::MONTHLY:
+                return 'Monthly';
+            case static::YEARLY:
+                return 'Monthly';
+        }
+    }
+
     public function setStart(Carbon $start)
     {
         $this->start = $start;
@@ -151,5 +167,18 @@ class Metric
             'count' => $this->count,
             'statistics' => $this->statistics,
         ];
+    }
+
+    /**
+     * String representation of metric, mostly for logging purpose
+     * 
+     * @return string
+     */
+    public function __toString()
+    {
+        $start = $this->start->toDateTimeString();
+        $end = $this->end->toDateTimeString();
+        $type = $this->getTypeString();
+        return "$type Metrics from $start to $end";
     }
 }
