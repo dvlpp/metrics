@@ -41,6 +41,14 @@ class VisitRepositoryTest extends MetricTestCase
     }
 
     /** @test */
+    public function we_can_query_visits_by_time_interval()
+    {
+        $interval = $this->getLastDay();
+        $this->createVisitsInTimeInterval($interval, 100);
+        $this->assertEquals(100, count($this->repository->getByTimeInterval($interval)));
+    }
+
+    /** @test */
     public function we_can_query_for_first_visit()
     {
         $this->createVisits(23, '-1 hour');

@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Analyzers\UrlAnalyzer;
 use Dvlpp\Metrics\Analyzers\UserAgentAnalyzer;
 
-class AnalyzerTest extends MetricTestCase
+class UserAgentAnalyzerTest extends MetricTestCase
 {
     /** @test */
     public function test_user_agent_analyzer()

@@ -5,17 +5,23 @@ use Dvlpp\Metrics\Metric;
 use Dvlpp\Metrics\Updater;
 use Dvlpp\Metrics\Manager;
 use Dvlpp\Metrics\TimeInterval;
+use Dvlpp\Metrics\Repositories\MetricRepository;
 use Dvlpp\Metrics\Repositories\Eloquent\MetricModel;
 use Dvlpp\Metrics\Repositories\Eloquent\VisitModel;
+use Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer;
+use Illuminate\Support\Collection;
 
 class UpdaterTest extends MetricTestCase 
 {
     protected $updater;
 
+    protected $repository;
+
     public function setUp()
     {
         parent::setUp();
         $this->updater = $this->app->make(Manager::class)->getUpdater();
+        $this->repository = $this->app->make(MetricRepository::class);
     }
 
     /** @test */
@@ -41,14 +47,40 @@ class UpdaterTest extends MetricTestCase
         $periods = $this->updater->getCompletePeriods($referenceStart, $referenceEnd);
 
         // -> 2014,2015, Jan 2016, 1st February, 2nd February, 3rd Feb. 0h, 1h, 2h, 3h, 4h
-        $this->assertCount(10, $periods);
+        $this->assertHasCompletePeriods($periods, 2, 1, 2, 5);
 
         $referenceStart = Carbon::create(2014,1,1,0,0,0);
         $referenceEnd = Carbon::create(2014,2,3,5,59,59);
 
         $periods = $this->updater->getCompletePeriods($referenceStart, $referenceEnd);
-        $this->assertCount(8, $periods);
+        $this->assertHasCompletePeriods($periods, 0, 1, 2, 5);
 
+    }
+
+
+    /**
+     * Assert the collection has the expected content of TimeIntervals
+     * 
+     * @param  integer $years 
+     * @param  integer $months
+     * @param  integer $days 
+     * @param  integer $hours
+     * @return void
+     */
+    protected function assertHasCompletePeriods(Collection $intervals, $years, $months, $days, $hours)
+    {
+        $this->assertCount($years, $intervals->filter(function($item) {
+            return $item->type() == Metric::YEARLY;
+        }));
+        $this->assertCount($months, $intervals->filter(function($item) {
+            return $item->type() == Metric::MONTHLY;
+        }));
+        $this->assertCount($days, $intervals->filter(function($item) {
+            return $item->type() == Metric::DAILY;
+        }));
+        $this->assertCount($hours, $intervals->filter(function($item) {
+            return $item->type() == Metric::HOURLY;
+        }));
     }
 
     /** @test */
@@ -62,6 +94,43 @@ class UpdaterTest extends MetricTestCase
 
         // 1 day + 24 + 1 hours
         $this->assertCount(26, $missing);
+    }
+   
+    /** @test */
+    public function all_metrics_are_created_for_last_day_if_we_have_visits_in_every_hours()
+    {
+        $interval = $this->getLastDay();
+        $this->createVisitsInEveryTimeInterval($interval, 1);
+        $this->updater->update();
+        $this->assertCount(25, $this->repository->all());
+    }
+
+    /** @test */
+    public function all_metrics_are_created_for_last_month_if_we_have_visits_in_every_hours()
+    {
+        $interval = $this->getLastMonth();
+        $dayCount = count($interval->toDays());
+
+        $this->createVisitsInEveryTimeInterval($interval, 1);
+        $this->updater->update();
+
+        $count = $dayCount * 24 + $dayCount + 1;
+        $this->assertCount($count, $this->repository->all());
+    }
+
+    /** @test */
+    public function all_metrics_are_created_for_last_year_if_we_have_visits_in_every_hours()
+    {
+        $interval = $this->getLastYear();
+
+        $dayCount = count($interval->toDays());
+        $hourCount = count($interval->toHours());
+
+        $this->createVisitsInEveryTimeInterval($interval, 1);
+        $this->updater->update();
+
+        $count = $hourCount + $dayCount + 12 + 1;
+        $this->assertCount($count, $this->repository->all());
     }
 
     /** @test */
@@ -82,16 +151,7 @@ class UpdaterTest extends MetricTestCase
         $metric = $metrics->find($period);
         $this->assertEquals(50, $metric->getCount());
     }
-
-    /*
-    public function load_test()
-    {
-        $start = Carbon::create(2016,1,1,0,0,0);
-        $end = Carbon::create(2016,1,1,23,59,59);
-        $this->createVisitsByDate(100000, $start, $end);
-        $this->updater->update();
-    }*/
-
+    
     /** @test */
     public function we_dont_create_metrics_for_periods_with_no_visits()
     {
@@ -123,53 +183,39 @@ class UpdaterTest extends MetricTestCase
     }
 
     /** @test */
-    public function monthly_statistics_are_consolidated_correctly()
+    public function daily_statistics_are_consolidated_correctly()
     {
-        // Take the beginning of last month
-        // Take the end of last month
-        // Generate Visit for each hour of each day
-        // 
-        dd($this->getLastMonth());
+        $day = $this->getLastDay();
+        $this->createVisitsInEveryTimeInterval($day, 3);
+        
+        $count = VisitModel::count();
+        $this->assertEquals(count($day->toHours()) * 3, $count);
+        $this->assertVisitsAreUnique();
+
+        $this->updater->update();
+        
+        $dailyMetric = $this->repository->find($day);
+
+        $this->assertNotNull($dailyMetric);
+        $this->assertEquals($count, $dailyMetric->getStatisticsByKey(UniqueVisitorAnalyzer::class)['unique-visitors']);
     }
 
     /** @test */
-    public function yearly_statistics_are_consolidated_correctly()
+    public function monthly_statistics_are_consolidated_correctly()
     {
-        // Take the beginning of last month
-        // Take the end of last month
-        // Generate Visit for each hour of each day
-        // 
+        $month = $this->getLastMonth();
+        $this->createVisitsInEveryTimeInterval($month, 3);
+        
+        $count = VisitModel::count();
+        $this->assertEquals(count($month->toHours()) * 3, $count);
+        $this->assertVisitsAreUnique();
+
+        $this->updater->update();
+        
+        $monthMetric = $this->repository->find($month);
+
+        $this->assertNotNull($monthMetric);
+        $this->assertEquals($count, $monthMetric->getStatisticsByKey(UniqueVisitorAnalyzer::class)['unique-visitors']);
     }
-
-    /**
-     * Get last month as time interval
-     * 
-     * @return TimeInterval
-     */
-    protected function getLastMonth()
-    {
-        $start = new Carbon('first day of last month');
-        $end = new Carbon('last day of last month');
-        $start->startOfDay();
-        $end->endOfDay();
-
-        return new TimeInterval($start, $end, Metric::MONTHLY);
-    }
-
-    /**
-     * Get last year as time interval
-     * 
-     * @return TimeInterval
-     */
-    protected function getLastYear()
-    {
-        $start = new Carbon('first day of last year');
-        $end = new Carbon('last day of last year');
-        $start->startOfDay();
-        $end->endOfDay();
-
-        return new TimeInterval($start, $end, Metric::YEARLY);
-    }
-
        
 }

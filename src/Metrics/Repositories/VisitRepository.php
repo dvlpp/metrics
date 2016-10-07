@@ -14,6 +14,8 @@ interface VisitRepository {
 
     public function getTimeInterval(Carbon $start, Carbon $end);
 
+    public function getByTimeInterval(TimeInterval $interval);
+
     public function first();
 
     public function last();

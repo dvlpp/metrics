@@ -92,7 +92,6 @@ return [
         'hourly' => [
             Dvlpp\Metrics\Analyzers\UrlAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UserAgentAnalyzer::class,
-            Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer::class,
         ],
         'daily' => [
             Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer::class,

@@ -83,12 +83,11 @@ class Updater
         if($missingPeriods) {
             // Now, we'll have to sort them by type as we want to process the smaller
             // unit first.
-            $sortedPeriods = $missingPeriods->sort(function ($item) {
+            $sortedPeriods = $missingPeriods->sortBy(function ($item, $key) {
                 return $item->type();
             });
 
             foreach ($sortedPeriods as $period) {
-                
                 // Process will return false if there was no data to handle in
                 // a given period.
                 $metric = $this->process($period);
@@ -170,7 +169,7 @@ class Updater
         $consolider = new Consolider($this->consoliders[$period->type()]);
 
         $metrics = $this->metrics->getTimeIntervalByType($period, $period->type() - 1);
-
+        
         if($metrics) {
 
             $count = $metrics->reduce(function ($carrier, $metric) {

@@ -88,7 +88,7 @@ class MetricEloquentRepository implements MetricRepository
     {
         $metrics = $this->metric->whereType($type)
             ->where('start', '>=', $interval->start())
-            ->where('end', '<', $interval->end())->get();
+            ->where('end', '<=', $interval->end())->get();
         
         return $this->convertCollection($metrics);
     }

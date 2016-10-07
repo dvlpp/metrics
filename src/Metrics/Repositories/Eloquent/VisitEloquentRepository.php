@@ -152,6 +152,21 @@ class VisitEloquentRepository implements VisitRepository
     }
 
     /**
+     * Return all visits for a given interval
+     * 
+     * @param  TimeInterval $interval
+     * @return Collection
+     */
+    public function getByTimeInterval(TimeInterval $interval)
+    {
+        $visits = $this->visit->where('date', ">=", $interval->start())->where('date', "<=", $interval->end())->get();
+
+        // TODO : we could chunk these results to optimize the memory usage a little.
+
+        return $this->convertCollection($visits);
+    }
+
+    /**
      * Store in database 
      * 
      * @param  Visit  $visit
