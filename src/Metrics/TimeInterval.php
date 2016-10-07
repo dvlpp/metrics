@@ -75,7 +75,60 @@ class TimeInterval {
         }
     }
 
-    public function divideByType($type)
+    /**
+     * Spread a time interval into Hours
+     * 
+     * @return array
+     */
+    public function toHours()
+    {
+        return $this->divideInto(Metric::HOURLY);
+    }
+
+    /**
+     * Spread a time interval into Days
+     * 
+     * @return array
+     */
+    public function toDays()
+    {
+        return $this->divideInto(Metric::DAILY);
+    }
+
+
+    /**
+     * Spread a time interval into Months
+     * 
+     * @return array
+     */
+    public function toMonths()
+    {
+        return $this->divideInto(Metric::MONTHLY);
+    }
+
+    /**
+     * Divide 
+     * @param  [type] $type [description]
+     * @return [type]       [description]
+     */
+    protected function divideInto($type)
+    {
+        $offset = $this->type - $type;
+        $intervals = [$this];
+
+        for($x = 0; $x < $offset; $x++) {
+            $dividedIntervals = [];
+            foreach($intervals as $interval)
+            {
+                $dividedIntervals = array_merge($dividedIntervals, $interval->divide());
+            }
+            $intervals = $dividedIntervals;
+        }
+
+        return $intervals;
+    }
+
+    protected function divideByType($type)
     {
         $start = $this->start->copy();
 

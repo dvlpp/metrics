@@ -121,4 +121,55 @@ class UpdaterTest extends MetricTestCase
         $metric = $metrics->find($period);
         $this->assertNotNull($metric);
     }
+
+    /** @test */
+    public function monthly_statistics_are_consolidated_correctly()
+    {
+        // Take the beginning of last month
+        // Take the end of last month
+        // Generate Visit for each hour of each day
+        // 
+        dd($this->getLastMonth());
+    }
+
+    /** @test */
+    public function yearly_statistics_are_consolidated_correctly()
+    {
+        // Take the beginning of last month
+        // Take the end of last month
+        // Generate Visit for each hour of each day
+        // 
+    }
+
+    /**
+     * Get last month as time interval
+     * 
+     * @return TimeInterval
+     */
+    protected function getLastMonth()
+    {
+        $start = new Carbon('first day of last month');
+        $end = new Carbon('last day of last month');
+        $start->startOfDay();
+        $end->endOfDay();
+
+        return new TimeInterval($start, $end, Metric::MONTHLY);
+    }
+
+    /**
+     * Get last year as time interval
+     * 
+     * @return TimeInterval
+     */
+    protected function getLastYear()
+    {
+        $start = new Carbon('first day of last year');
+        $end = new Carbon('last day of last year');
+        $start->startOfDay();
+        $end->endOfDay();
+
+        return new TimeInterval($start, $end, Metric::YEARLY);
+    }
+
+       
 }

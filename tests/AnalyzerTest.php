@@ -103,4 +103,5 @@ class AnalyzerTest extends MetricTestCase
             $count
         );
     }
+
 }

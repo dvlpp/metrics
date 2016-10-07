@@ -152,7 +152,11 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         $visits->map(function($item) use ($repo) {
             $repo->store($item);
         });
+    }
 
+    protected function createVisitsInTimeInterval(TimeInterval $interval, $number, $attributes = [])
+    {
+        $this->createVisitsByDate($number, $interval->start(), $interval->end(), $attributes);
     }
 
     /**
