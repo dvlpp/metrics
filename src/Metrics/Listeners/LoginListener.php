@@ -6,6 +6,7 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Dvlpp\Metrics\Actions\UserLoginAction;
 use Dvlpp\Metrics\Jobs\MarkPreviousUserVisits;
+use Dvlpp\Metrics\Jobs\RetroSessions;
 use Dvlpp\Metrics\Manager;
 
 class LoginListener 
@@ -40,6 +41,9 @@ class LoginListener
             $job = new MarkPreviousUserVisits($event->user);
             
             $this->dispatchNow($job);
+
+            $retro = new RetroSessions();
+            $this->dispatchNow($retro);
         }
     }
 

@@ -83,6 +83,13 @@ class Visit implements Arrayable
      */
     protected $anonymous;
 
+    /**
+     * Laravel's session id
+     * 
+     * @var string
+     */
+    protected $session_id;
+
     public function __construct()
     {
         $this->actions = new Collection;
@@ -110,6 +117,7 @@ class Visit implements Arrayable
         $visit->date = $data['date'];
         $visit->cookie = $data['cookie'];
         $visit->anonymous = $data['anonymous'];
+        $visit->session_id = $data['session_id'];
         foreach($data['actions'] as $action) {
             $visit->addAction(unserialize($action));
         }
@@ -273,6 +281,26 @@ class Visit implements Arrayable
     }
 
     /**
+     * Set Session id
+     * 
+     * @param string  $sessionId 
+     */
+    public function setSessionId($sessionId)
+    {
+        $this->session_id = $sessionId;
+    }
+
+    /**
+     * Get session id
+     * 
+     * @return string
+     */
+    public function getSessionId()
+    {
+        return $this->session_id;
+    }
+
+    /**
      * Get actions on this visit
      * 
      * @return ActionCollection
@@ -378,6 +406,7 @@ class Visit implements Arrayable
             'referer' => $this->referer,
             'date' => $this->date,
             'anonymous' => $this->anonymous,
+            'session_id' => $this->session_id,
         ];
     }
 

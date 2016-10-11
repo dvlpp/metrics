@@ -6,6 +6,7 @@ use DateInterval;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Dvlpp\Metrics\Repositories\VisitRepository;
+use Illuminate\Session\SessionManager;
 
 /**
  * Create a Visit object from a Request
@@ -22,10 +23,16 @@ class VisitCreator
      */
     protected $manager;
 
-    public function __construct(VisitRepository $visits, Manager $manager)
+    /**
+     * @var SessionManager
+     */
+    protected $session;
+
+    public function __construct(VisitRepository $visits, Manager $manager, SessionManager $session)
     {
         $this->visits = $visits;
         $this->manager = $manager;
+        $this->session = $session;
     }
 
     /**
@@ -41,6 +48,7 @@ class VisitCreator
         $visit->setUrl($request->getUri());
         $visit->setReferer($request->server('HTTP_REFERER'));
         $visit->setIp($request->ip());
+        $visit->setSessionId($this->session->getId());
 
         $cookiePresent = $request->hasCookie(config('metrics.cookie_name'));
         $anonCookiePresent = $request->hasCookie(config('metrics.anonymous_cookie_name'));

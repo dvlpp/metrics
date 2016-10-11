@@ -24,6 +24,8 @@ interface VisitRepository {
 
     public function lastVisitFromUser($userId);
 
+    public function lastVisitBySession($sessionId, Carbon $from = null);
+
     public function translateCookie($oldCookie, $newCookie);
 
     public function oldestVisitForCookie($cookie);

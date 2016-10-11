@@ -149,7 +149,7 @@ class TrackingTest extends MetricTestCase
     {   
         $user = $this->createTestUser();
         $timeMachine = Mockery::mock(TimeMachine::class);
-        $timeMachine->shouldReceive('setCurrentVisit')->once();
+        $timeMachine->shouldReceive('setCurrentVisit');
         $timeMachine->shouldReceive('lookup')->once()->with($user->id);
         $this->app->bind(TimeMachine::class, function ($app) use ($timeMachine) {
             return $timeMachine;
@@ -227,5 +227,42 @@ class TrackingTest extends MetricTestCase
         $result = $this->get('/json');
         $this->assertResponseStatus(200);
         $this->assertEquals(1, VisitModel::count());
+    }
+
+    /** @test */
+    public function we_track_session_id()
+    {
+        $sessionId = $this->app->make('session')->getId();
+        $this->visit("");
+        $this->seeInDatabase('metric_visits', [
+            "session_id" => $sessionId
+        ]);
+    }
+
+    /** @test */
+    public function time_machine_update_previous_session_id_on_login()
+    {
+        $this->visit("");
+        $visit = VisitModel::first();
+        $cookie = $visit->cookie;
+        $this->createVisits(20, '-2 hours', [
+            'cookie' => $cookie,
+            'session_id' => '1234',
+        ]);
+        $user = $this->createTestUser();
+        $data = [
+            'email' => 'test@example.net',
+            'password' => 'test',
+        ];
+        $cookieName = $this->app['config']->get('metrics.cookie_name');
+        $headers = [
+            $cookieName => $cookie,
+        ];
+        $result = $this->post('auth', $data, $headers);
+
+        $lifeTime = config('session.lifetime');
+
+        $count = VisitModel::whereSessionId("1234")->count();
+        $this->assertEquals(0, $count);
     }
 }

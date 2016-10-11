@@ -90,6 +90,7 @@ return [
     */
    'analyzers' => [
         'hourly' => [
+            Dvlpp\Metrics\Analyzers\VisitorAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UrlAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UserAgentAnalyzer::class,
         ],
@@ -103,15 +104,18 @@ return [
    'consoliders' => [
          
         'daily' => [
+            Dvlpp\Metrics\Analyzers\VisitorAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UrlAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UserAgentAnalyzer::class,
         ],
         'monthly' => [
+            Dvlpp\Metrics\Analyzers\VisitorAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UrlAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UserAgentAnalyzer::class,
         ],
         'yearly' => [
+            Dvlpp\Metrics\Analyzers\VisitorAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UniqueVisitorAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UrlAnalyzer::class,
             Dvlpp\Metrics\Analyzers\UserAgentAnalyzer::class,

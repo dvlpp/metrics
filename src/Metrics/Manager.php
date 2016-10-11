@@ -256,6 +256,23 @@ class Manager
     }
 
     /**
+     * Update previous visitor session with newly set session id
+     *
+     * @return boolean
+     */
+    public function updatePreviousSessions()
+    {
+        if($this->isRequestTracked() )
+        {
+            $timeMachine = $this->getTimeMachine();
+            return $timeMachine->updatePreviousSessions();
+        }
+        else {
+            return false;
+        }
+    }   
+
+    /**
      * Get the time machine instance
      * 
      * @return TimeMachine

@@ -136,6 +136,79 @@ class VisitEloquentRepository implements VisitRepository
     }
 
     /**
+     * Get last visit by session id
+     * 
+     * @param  string      $sessionId 
+     * @param  Carbon|null $from     
+     * @return Visit|null
+     */
+    public function lastVisitBySession($sessionId, Carbon $from = null)
+    {
+        if($from) {
+            $visit = $this->visit->where('session_id', $sessionId)
+                ->where('date', '>', $from)               
+                ->orderBy('date', 'desc')
+                ->first();
+        }
+        else {
+            $visit = $this->visit->where('session_id', $sessionId)
+                ->orderBy('date', 'desc')
+                ->first();
+        }
+
+        if($visit) {
+            return $this->convertObject($visit);
+        }
+    }
+
+    /**
+     * Get first visit for a corresponding cookie, with optionnal start & end date
+     * 
+     * @param  string      $cookie 
+     * @param  Carbon      $from   
+     * @param  Carbon|null $to     
+     * @return Visit|null              
+     */
+    public function firstVisitForCookie($cookie, Carbon $from, Carbon $to = null)
+    {
+        if($to) {
+            $visit = $this->visit->whereCookie($cookie)
+                ->where('date', '>', $from)
+                ->where('date', '<', $to)
+                ->orderBy('date', 'asc')
+                ->first();
+        }
+        else {
+            $visit = $this->visit->whereCookie($cookie)
+                ->where('date', '>', $from)
+                ->orderBy('date', 'asc')
+                ->first();
+        }
+
+        if($visit) {
+            return $this->convertObject($visit);
+        }
+    }
+
+    /**
+     * Update session id for a specific visitor
+     * 
+     * @param  string  $cookie    
+     * @param  string  $sessionId 
+     * @param  Carbon  $from      
+     * @param  Carbon  $to        
+     * @return boolean
+     */
+    public function updateSessionId($cookie, $sessionId, Carbon $from, Carbon $to)
+    {
+        return $this->getQueryBuilder()
+            ->where('cookie', $cookie)
+            ->where('date', '>=', $from)
+            ->where('date', '<=', $to)
+            ->update(['session_id' => $sessionId]);
+    }
+
+    /**
      * Return all visits for a given interval
      * 
      * @param  Carbon $start

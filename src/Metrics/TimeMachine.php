@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Metrics;
 
+use Carbon\Carbon;
 use Dvlpp\Metrics\Repositories\VisitRepository;
 
 class TimeMachine
@@ -69,4 +70,36 @@ class TimeMachine
         return true;
     }
 
+    /**
+     * Update previous sessions with current session id
+     * 
+     * @return boolean
+     */
+    public function updatePreviousSessions()
+    {
+        $lifetime = config('session.lifetime');
+
+        $date = Carbon::now()->subMinutes($lifetime);
+
+        // Lookup for cookie in the session litetime timespan
+        $visit = $this->visits->firstVisitForCookie($this->currentVisit->getCookie(), $date);
+
+        // If a session is found, look for an older one, adding each time the session lifetime
+        while($visit) {
+            $previousVisit = $visit;
+            $date =  $date->subMinutes($lifetime);
+            $visit = $this->visits->firstVisitForCookie($this->currentVisit->getCookie(), $date, $visit->getDate());        
+        }
+
+        if(! $previousVisit) {
+            return false;
+        }
+        
+        $sessionId = $this->currentVisit->getSessionId();
+
+        $this->visits->updateSessionId($this->currentVisit->getCookie(), $sessionId, $previousVisit->getDate(), Carbon::now());
+        
+        return true;
+
+    }
 }
