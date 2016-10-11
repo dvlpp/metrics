@@ -83,6 +83,7 @@ class TimeMachine
 
         // Lookup for cookie in the session litetime timespan
         $visit = $this->visits->firstVisitForCookie($this->currentVisit->getCookie(), $date);
+        $previousVisit = null;
 
         // If a session is found, look for an older one, adding each time the session lifetime
         while($visit) {

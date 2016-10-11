@@ -265,4 +265,17 @@ class TrackingTest extends MetricTestCase
         $count = VisitModel::whereSessionId("1234")->count();
         $this->assertEquals(0, $count);
     }
+
+    /** @test */
+    public function time_machine_dont_fails_if_no_previous_visists_on_login()
+    {
+        $user = $this->createTestUser();
+        $data = [
+            'email' => 'test@example.net',
+            'password' => 'test',
+        ];
+        $result = $this->post('auth', $data);
+
+        $this->assertEquals(1, VisitModel::count());
+    }
 }
