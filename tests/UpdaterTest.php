@@ -87,13 +87,11 @@ class UpdaterTest extends MetricTestCase
     public function we_can_parse_for_missing_metrics()
     {
         $referenceStart = Carbon::create(2016,1,1,0,0,0);
-        $referenceEnd = Carbon::create(2016,1,2,1,59,59);
-
+        $referenceEnd = Carbon::create(2016,1,1,23,59,59);
+        $this->createVisitsInEveryTimeInterval(new TimeInterval($referenceStart, $referenceEnd, Metric::DAILY), 1);
         $periods = $this->updater->getCompletePeriods($referenceStart, $referenceEnd);
         $missing = $this->updater->parseForMissingMetrics($periods);
-
-        // 1 day + 24 + 1 hours
-        $this->assertCount(26, $missing);
+        $this->assertCount(23, $missing);
     }
    
     /** @test */

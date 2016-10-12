@@ -70,6 +70,7 @@ class Updater
      */
     protected function processUpdate(Carbon $start, Carbon $end)
     {
+        $this->info('Analyzing Visits...');
         // First, we'll get the complete period in the timeframe, with only the 
         // top level periods (meaning we'll only have the Year TimeInterval of a complete
         // year, not the month TimeInterval the years is composed)
@@ -201,6 +202,14 @@ class Updater
         foreach($periods as $period) {
             if(! $this->metrics->find($period)) {
                 
+                // We'll check that there are visits in that period
+                // so we don't divide into smaller units if there
+                // are no visits in the first place.
+                if(count($this->visits->getByTimeInterval($period)) == 0) {
+                    continue;
+                }
+
+
                 $missingMetrics[] = $period;
                 if($period->type() != Metric::HOURLY) {
                     $missingMetrics = array_merge($missingMetrics, $this->parseForMissingMetrics($period->divide()));
