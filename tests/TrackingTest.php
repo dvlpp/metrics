@@ -278,4 +278,19 @@ class TrackingTest extends MetricTestCase
 
         $this->assertEquals(1, VisitModel::count());
     }
+
+    /** @test */
+    public function session_id_persists_between_requests()
+    {
+        $router = $this->app->make('router');
+        $response = $router->get('session', function() {
+            dump(session()->getId());
+        });
+        
+        $this->get('session');
+        $this->refreshApplication();
+        $this->setUp();
+        $this->get('session');
+
+    }
 }

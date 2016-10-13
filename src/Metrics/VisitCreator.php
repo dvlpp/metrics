@@ -23,16 +23,10 @@ class VisitCreator
      */
     protected $manager;
 
-    /**
-     * @var SessionManager
-     */
-    protected $session;
-
-    public function __construct(VisitRepository $visits, Manager $manager, SessionManager $session)
+    public function __construct(VisitRepository $visits, Manager $manager)
     {
         $this->visits = $visits;
         $this->manager = $manager;
-        $this->session = $session;
     }
 
     /**
@@ -48,7 +42,6 @@ class VisitCreator
         $visit->setUrl($request->getUri());
         $visit->setReferer($request->server('HTTP_REFERER'));
         $visit->setIp($request->ip());
-        $visit->setSessionId($this->session->getId());
 
         $cookiePresent = $request->hasCookie(config('metrics.cookie_name'));
         $anonCookiePresent = $request->hasCookie(config('metrics.anonymous_cookie_name'));
