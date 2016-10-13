@@ -3,7 +3,9 @@
 namespace Dvlpp\Metrics\Analyzers;
 
 use Carbon\Carbon;
+use Dvlpp\Metrics\Visit;
 use Dvlpp\Metrics\Metric;
+use Jenssegers\Agent\Agent;
 use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Repositories\VisitRepository;
 
@@ -21,11 +23,18 @@ class VisitorAnalyzer extends Analyzer
      */
     protected $lifetime;
 
+    /**
+     * UserAgent library
+     * 
+     * @var Agent
+     */
+    protected $agent;
+
     public function __construct(VisitRepository $visits)
     {
         $this->visits = $visits;
         $this->lifetime = config('session.lifetime');
-
+        $this->agent = new Agent();
     }
 
     /**
@@ -41,6 +50,10 @@ class VisitorAnalyzer extends Analyzer
 
         foreach($visits as $visit) {
 
+            if($this->isRobot($visit)) {
+                continue;
+            }
+
             $sessionId = $visit->getSessionId();
             
             if(! in_array($sessionId, $sessionStack)) {
@@ -52,6 +65,18 @@ class VisitorAnalyzer extends Analyzer
         }
         
         return ['visitors' => $count];
+    }
+
+    /**
+     * Check if visit is a robot, from its user agent
+     * 
+     * @param  Visit   $visit 
+     * @return boolean        
+     */
+    protected function isRobot(Visit $visit)
+    {
+        $this->agent->setUserAgent($visit->getUserAgent());
+        return $this->agent->isRobot();
     }
 
     /**

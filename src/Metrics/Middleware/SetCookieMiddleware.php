@@ -40,18 +40,16 @@ class SetCookieMiddleware
         {
             $visit = $this->metricManager->visit();
             
-            // Putting code for session here
-            // In the same fashion, we'll set the metrics_session_id
-            // at this time
-            if($request->session()->has('metrics_session_id')) {
-                $visit->setSessionId($request->session()->get('metrics_session_id'));
+            // Putting code for session here as we're pretty
+            // sure it session middleware will be started then
+            if(session()->has('metrics_session_id')) {
+                $visit->setSessionId(session()->get('metrics_session_id'));
             }
             else {
                 $sessionId = str_random(16);
                 $visit->setSessionId($sessionId);
-                $request->session()->put('metrics_session_id', $sessionId);
+                session()->put('metrics_session_id', $sessionId);
             }
-
 
             $value = $visit->getCookie();
             $cookieName = config('metrics.cookie_name');
