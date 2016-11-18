@@ -33,12 +33,6 @@ class Updater
      */
     protected $consoliders;
 
-
-    protected function memory($message = '')
-    {
-        $this->info($message.' - current RAM use : '.memory_get_usage());
-    }
-
     public function __construct(MetricRepository $metrics, VisitRepository $visits, array $analyzers, array $consoliders)
     {
         $this->metrics = $metrics;
