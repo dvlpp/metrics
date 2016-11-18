@@ -29,4 +29,6 @@ interface VisitRepository {
     public function translateCookie($oldCookie, $newCookie);
 
     public function oldestVisitForCookie($cookie);
+
+    public function countByTimeInterval(TimeInterval $interval);
 }

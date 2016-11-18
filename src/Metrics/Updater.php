@@ -34,6 +34,11 @@ class Updater
     protected $consoliders;
 
 
+    protected function memory($message = '')
+    {
+        $this->info($message.' - current RAM use : '.memory_get_usage());
+    }
+
     public function __construct(MetricRepository $metrics, VisitRepository $visits, array $analyzers, array $consoliders)
     {
         $this->metrics = $metrics;
@@ -71,6 +76,7 @@ class Updater
     protected function processUpdate(Carbon $start, Carbon $end)
     {
         $this->info('Analyzing Visits...');
+
         // First, we'll get the complete period in the timeframe, with only the 
         // top level periods (meaning we'll only have the Year TimeInterval of a complete
         // year, not the month TimeInterval the years is composed)
@@ -91,6 +97,7 @@ class Updater
             foreach ($sortedPeriods as $period) {
                 // Process will return false if there was no data to handle in
                 // a given period.
+                
                 $metric = $this->process($period);
 
                 if($metric) {
@@ -205,10 +212,9 @@ class Updater
                 // We'll check that there are visits in that period
                 // so we don't divide into smaller units if there
                 // are no visits in the first place.
-                if(count($this->visits->getByTimeInterval($period)) == 0) {
+                if($this->visits->countByTimeInterval($period) == 0) {
                     continue;
                 }
-
 
                 $missingMetrics[] = $period;
                 if($period->type() != Metric::HOURLY) {

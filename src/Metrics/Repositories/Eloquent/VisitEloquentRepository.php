@@ -240,6 +240,14 @@ class VisitEloquentRepository implements VisitRepository
     }
 
     /**
+     * Count visits for a given time interval 
+     */
+    public function countByTimeInterval(TimeInterval $interval)
+    {
+        return $this->getQueryBuilder()->where('date', ">=", $interval->start())->where('date', "<=", $interval->end())->count();
+    }
+
+    /**
      * Store in database 
      * 
      * @param  Visit  $visit
