@@ -2,6 +2,8 @@
 
 namespace Dvlpp\Metrics\Listeners;
 
+use Log;
+use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Dvlpp\Metrics\Actions\UserLoginAction;
@@ -18,9 +20,15 @@ class LoginListener
      */
     protected $manager;
 
-    public function __construct(Manager $manager)
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    public function __construct(Manager $manager, Request $request)
     {
         $this->manager = $manager;
+        $this->request = $request;
     }
 
     /**
@@ -33,6 +41,10 @@ class LoginListener
     {
         if($this->manager->isRequestTracked() && ! $this->manager->visit()->isAnonymous())
         {
+            if(config('metrics.logging')) {
+                $url = $this->request->url();
+                Log::info('metrics : update user visits from '.$url);
+            }
             // We add a user login action
             $action = new UserLoginAction($event->user->id);
             $this->manager->action($action);

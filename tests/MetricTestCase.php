@@ -41,7 +41,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         $this->app['config']->set('session.driver', 'array'); 
         $this->app['config']->set('database.default', 'sqlite');
         $this->app['config']->set('database.connections.sqlite.database', ':memory:');
-
+        $this->app['config']->set('metrics.logging', true);
         $this->migrateDatabase();
         $this->addLoginRoute();
     }
