@@ -56,7 +56,7 @@ class VisitCreator
             $cookie = $request->cookies->get(config('metrics.anonymous_cookie_name'));
         }
 
-        if(($cookiePresent || $anonCookiePresent) && ! $this->hasCookieExpired($cookie)) {
+        if($cookiePresent || $anonCookiePresent) {
             $visit->setCookie($cookie);
         }
         else {

@@ -5,6 +5,7 @@ namespace Dvlpp\Metrics\Middleware;
 use Closure;
 use Dvlpp\Metrics\Manager;
 use Dvlpp\Metrics\VisitCreator;
+use DateInterval;
 
 class SetCookieMiddleware
 {
@@ -54,16 +55,33 @@ class SetCookieMiddleware
             $value = $visit->getCookie();
             $cookieName = config('metrics.cookie_name');
             $anonCookieName = config('metrics.anonymous_cookie_name');
+
             if($visit->isAnonymous() ) {
-                $response->headers->setCookie(cookie()->forever($anonCookieName, $value));
+                $response->headers->setCookie(cookie()->make($anonCookieName, $value, $this->getLifetime()));
                 $response->headers->setCookie(cookie()->forget($cookieName));
             }
             else {
-                $response->headers->setCookie(cookie()->forever($cookieName, $value)); 
+                $response->headers->setCookie(cookie()->make($cookieName, $value, $this->getLifetime())); 
                 $response->headers->setCookie(cookie()->forget($anonCookieName));
             }   
         }
 
         return $response;
+    }
+
+    /**
+     * Get lifetime, in minutes
+     * 
+     * @return integer
+     */
+    protected function getLifetime()
+    {
+        $lifetime = config('metrics.cookie_lifetime');
+
+        $dateInterval = DateInterval::createFromDateString($lifetime);
+
+        $seconds = date_create('@0')->add($dateInterval)->getTimestamp();
+        
+        return $seconds * 60;
     }
 }
