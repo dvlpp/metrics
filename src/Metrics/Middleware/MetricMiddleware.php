@@ -49,7 +49,7 @@ class MetricMiddleware
             $this->metricManager->setTrackingOff();
         }
 
-         // In the other case, we'll only track the visit
+        // In the other case, we'll only track the visit
         // if a Metric cookie already exist in the request
         if ($request->hasCookie(config('metrics.cookie_name'))) {
             $this->metricManager->setRequestCookie(true);

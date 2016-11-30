@@ -39,7 +39,8 @@ class LoginListener
      */
     public function handle(Login $event)
     {
-        if($this->manager->isRequestTracked() && ! $this->manager->visit()->isAnonymous())
+        if($this->manager->isRequestTracked() && ! $this->manager->visit()->isAnonymous() &&
+            !$this->manager->isFiltered($this->request))
         {
             if(config('metrics.logging')) {
                 $url = $this->request->url();
