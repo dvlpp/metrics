@@ -192,6 +192,8 @@ class Updater
                 return $carrier + $metric->getCount();
             }, 0);
 
+            $metric->setCount($count);
+
             $statistics = $consolider->consolidate($metrics);
 
             $metric->setStatistics(array_merge($metric->getStatistics(), $statistics));

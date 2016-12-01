@@ -111,11 +111,17 @@ class UpdaterTest extends MetricTestCase
         $interval = $this->getLastMonth();
         $dayCount = count($interval->toDays());
 
-        $this->createVisitsInEveryTimeInterval($interval, 1);
+        // Create 2 visits, each hour
+        $this->createVisitsInEveryTimeInterval($interval, 2);
         $this->updater->update();
 
-        $count = $dayCount * 24 + $dayCount + 1;
-        $this->assertCount($count, $this->repository->all());
+        $metricCount = $dayCount * 24 + $dayCount + 1;
+
+        $expectedPageView = count($interval->toHours()) * 2;
+        $monthlyMetric = $this->repository->find($interval);
+        $this->assertNotNull($monthlyMetric);
+        $this->assertEquals($expectedPageView, $monthlyMetric->getCount());
+        $this->assertCount($metricCount, $this->repository->all());
     }
 
     /** @test */
@@ -129,8 +135,12 @@ class UpdaterTest extends MetricTestCase
         $this->createVisitsInEveryTimeInterval($interval, 1);
         $this->updater->update();
 
-        $count = $hourCount + $dayCount + 12 + 1;
-        $this->assertCount($count, $this->repository->all());
+        $metricCount =  $hourCount + $dayCount + 12 + 1;
+
+        $expectedPageView = count($interval->toHours());
+        $yearlyMetric = $this->repository->find($interval);
+        $this->assertNotNull($yearlyMetric);
+        $this->assertCount($metricCount, $this->repository->all());
     }
 
     /** @test */
