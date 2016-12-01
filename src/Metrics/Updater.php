@@ -119,19 +119,12 @@ class Updater
      */
     protected function process(TimeInterval $period)
     {
-        dump($period);
         if($period->type() == Metric::HOURLY) {
             return $this->processAnalyze($period);
         }
         else {
             $metric = $this->processAnalyze($period);
             
-            // A Metric object will only be returned if there is
-            // data to analyze in the given period. If no data,
-            // there is no use in consolidate them.
-            /*if($metric) {
-                $metric = $this->processConsolidate($period, $metric);    
-            }*/  
             $metric = $this->processConsolidate($period, $metric);    
         }
         return $metric;
