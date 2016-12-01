@@ -100,6 +100,8 @@ class UpdaterTest extends MetricTestCase
         $interval = $this->getLastDay();
         $this->createVisitsInEveryTimeInterval($interval, 1);
         $this->updater->update();
+        // TODO : this assertion fails if we do our test on the 1st day of the month
+        // as the updater will calculate the month consolider as well
         $this->assertCount(25, $this->repository->all());
     }
 

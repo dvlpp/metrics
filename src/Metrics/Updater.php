@@ -119,6 +119,7 @@ class Updater
      */
     protected function process(TimeInterval $period)
     {
+        dump($period);
         if($period->type() == Metric::HOURLY) {
             return $this->processAnalyze($period);
         }
@@ -128,11 +129,23 @@ class Updater
             // A Metric object will only be returned if there is
             // data to analyze in the given period. If no data,
             // there is no use in consolidate them.
-            if($metric) {
+            /*if($metric) {
                 $metric = $this->processConsolidate($period, $metric);    
-            }   
+            }*/  
+            $metric = $this->processConsolidate($period, $metric);    
         }
         return $metric;
+    }
+
+    /**
+     * Check if analyzers are present for a given period
+     * 
+     * @param  integer  $periodType
+     * @return boolean             
+     */
+    protected function hasAnalyzers($periodType)
+    {
+        return count($this->analyzers[$periodType]) > 0 ? true : false;
     }
 
     /**
@@ -143,17 +156,25 @@ class Updater
      */
     protected function processAnalyze(TimeInterval $period)
     {
-        $compiler = new Compiler($this->analyzers[$period->type()]);
+        // Check if there are analyzers setUp for a given period, if not
+        // we'll don't waste memory by just initializing an empty Metric 
+        // instance, and pass it over to consolidate
+        
+        if($this->hasAnalyzers($period->type())) {
+        
+            $compiler = new Compiler($this->analyzers[$period->type()]);
+            $visits = $this->visits->getTimeInterval($period->start(), $period->end());
 
-        $visits = $this->visits->getTimeInterval($period->start(), $period->end());
-
-        if(count($visits) > 0) {
-            $statistics = $compiler->compile($visits);
-            $metric = Metric::create($period, $statistics, count($visits));
+            if(count($visits) > 0) {
+                $statistics = $compiler->compile($visits);
+                $metric = Metric::create($period, $statistics, count($visits));
+            }
+            else {
+                $metric = Metric::create($period, [], 0);
+            }
         }
         else {
-            //$metric = Metric::create($period, [], 0);
-            return null;
+            $metric = Metric::create($period, [], 0);
         }
 
         return $metric;
