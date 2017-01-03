@@ -13,11 +13,9 @@ class AddIndexes extends Migration
     public function up()
     {
         Schema::table('metric_visits', function(Blueprint $table) {
-            $table->index([
-                'date',
-                'session_id',
-                'cookie',
-            ]);
+            $table->index('date');
+            $table->index('session_id');
+            $table->index('cookie');
         });
     }
 
@@ -29,11 +27,9 @@ class AddIndexes extends Migration
     public function down()
     {
         Schema::table('metric_visits', function(Blueprint $table) {
-            $table->dropIndex([
-                'date',
-                'session_id',
-                'cookie',
-            ]);
+            $table->dropIndex('date');
+            $table->dropIndex('session_id');
+            $table->dropIndex('cookie');
         });
     }
 }
