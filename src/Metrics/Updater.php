@@ -217,7 +217,7 @@ class Updater
         $missingMetrics = [];
         
         foreach($periods as $period) {
-            if(! $this->metrics->find($period)) {
+            if(! $this->metrics->has($period)) {
                 
                 // We'll check that there are visits in that period
                 // so we don't divide into smaller units if there

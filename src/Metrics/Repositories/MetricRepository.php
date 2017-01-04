@@ -23,6 +23,14 @@ interface MetricRepository {
      */
     public function find(TimeInterval $interval);
 
+    /** 
+     * Check if a metric exists in DB
+     * 
+     * @param  TimeInterval $interval
+     * @return boolean               
+     */
+    public function has(TimeInterval $interval);
+    
     /**
      * Return first metric
      * 

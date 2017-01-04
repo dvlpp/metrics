@@ -47,6 +47,19 @@ class MetricEloquentRepository implements MetricRepository
         }
     }
 
+    /** 
+     * Check if a metric exists in DB
+     * 
+     * @param  TimeInterval $interval
+     * @return boolean               
+     */
+    public function has(TimeInterval $interval)
+    {
+        $count = $this->metric->where('start', $interval->start())->where('end', $interval->end())->count();
+
+        return $count > 0;
+    }
+
     /**
      * Return first metric
      * 
