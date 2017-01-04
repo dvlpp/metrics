@@ -93,7 +93,7 @@ class Updater
                 // a given period.
                 
                 $metric = $this->process($period);
-
+                
                 if($metric) {
                     $this->metrics->store($metric);
                     $this->info("Analyzed & Stored : $metric");

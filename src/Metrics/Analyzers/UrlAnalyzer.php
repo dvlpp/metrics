@@ -13,7 +13,7 @@ class UrlAnalyzer extends Analyzer
 
         foreach($visits as $visit) {
             
-            $url = $visit->getUrl();
+            $url = $this->stripQuery($visit->getUrl());
 
             if(array_key_exists($url, $stack)) {
                 $stack[$url]++;
@@ -24,6 +24,11 @@ class UrlAnalyzer extends Analyzer
         }
 
         return $stack;
+    }
+
+    protected function stripQuery($url)
+    {
+        return preg_replace('/\?.*/', '', $url);
     }
 
     public function consolidate(Collection $metrics)
