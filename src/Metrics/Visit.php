@@ -90,6 +90,13 @@ class Visit implements Arrayable
      */
     protected $session_id;
 
+    /**
+     * Response status code
+     *
+     * @var string
+     */
+    protected $status_code;
+
     public function __construct()
     {
         $this->actions = new Collection;
@@ -118,6 +125,7 @@ class Visit implements Arrayable
         $visit->cookie = $data['cookie'];
         $visit->anonymous = $data['anonymous'];
         $visit->session_id = $data['session_id'];
+        $visit->status_code = $data['status_code'];
         foreach($data['actions'] as $action) {
             $visit->addAction(unserialize($action));
         }
@@ -301,6 +309,26 @@ class Visit implements Arrayable
     }
 
     /**
+     * Set status code
+     * 
+     * @param string  $statusCode
+     */
+    public function setStatusCode($statusCode)
+    {
+        $this->status_code = $statusCode;
+    }
+
+    /**
+     * Get status code
+     * 
+     * @return string
+     */
+    public function getStatusCode()
+    {
+        return $this->status_code;
+    }
+
+    /**
      * Get actions on this visit
      * 
      * @return ActionCollection
@@ -407,6 +435,7 @@ class Visit implements Arrayable
             'date' => $this->date,
             'anonymous' => $this->anonymous,
             'session_id' => $this->session_id,
+            'status_code' => $this->status_code,
         ];
     }
 

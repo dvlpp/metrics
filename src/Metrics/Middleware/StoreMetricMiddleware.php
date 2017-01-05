@@ -48,6 +48,12 @@ class StoreMetricMiddleware
     {
         $visit = $this->metricManager->visit();
 
+        // We'll add the status code there, making
+        // sure that response status isn't modified
+        // in any other middleware. 
+        
+        $visit->setStatusCode($response->getStatusCode());
+
         if($visit && $this->metricManager->isRequestTracked() && ! $this->metricManager->isFiltered($request)) {
 
             // As some authentication method will take place

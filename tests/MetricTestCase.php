@@ -227,6 +227,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
             'custom' => [],
             'anonymous' => false,
             'session_id' => $faker->sha256,
+            'status_code' => 200,
         ];
         foreach($attributes as $key => $value) {
             $data[$key] = $value;
