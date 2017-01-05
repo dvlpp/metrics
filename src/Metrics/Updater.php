@@ -159,7 +159,7 @@ class Updater
             $visits = $this->visits->getTimeInterval($period->start(), $period->end());
 
             if(count($visits) > 0) {
-                $statistics = $compiler->compile($visits);
+                $statistics = $compiler->compile($visits, $period);
                 $metric = Metric::create($period, $statistics, count($visits));
             }
             else {
@@ -194,7 +194,7 @@ class Updater
 
             $metric->setCount($count);
 
-            $statistics = $consolider->consolidate($metrics);
+            $statistics = $consolider->consolidate($metrics, $period);
 
             $metric->setStatistics(array_merge($metric->getStatistics(), $statistics));
         }

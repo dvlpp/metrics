@@ -22,12 +22,12 @@ class Consolider
      * @param  Collection $metrics
      * @return array
      */
-    public function consolidate(Collection $metrics)
+    public function consolidate(Collection $metrics, TimeInterval $interval)
     {
         $statistics = [];
         foreach($this->consoliders as $consolider) {
             $consoliderStatistics = [];
-            $statistics[get_class($consolider)] = $consolider->consolidate($metrics);
+            $statistics[get_class($consolider)] = $consolider->consolidate($metrics, $interval);
         }
 
         return $statistics;

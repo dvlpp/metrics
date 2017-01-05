@@ -4,11 +4,12 @@ namespace Dvlpp\Metrics\Analyzers;
 
 use Illuminate\Support\Collection;
 use Jenssegers\Agent\Agent;
+use Dvlpp\Metrics\TimeInterval;
 
 class UserAgentAnalyzer extends Analyzer
 {
 
-    public function compile(Collection $visits)
+    public function compile(Collection $visits, TimeInterval $interval)
     {
         $devices = [];
         $browsers = [];
@@ -114,7 +115,7 @@ class UserAgentAnalyzer extends Analyzer
      * @param  Collection $metrics 
      * @return array
      */
-    public function consolidate(Collection $metrics)
+    public function consolidate(Collection $metrics, TimeInterval $interval)
     {
         $self = $this;
 

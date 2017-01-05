@@ -4,11 +4,12 @@ namespace Dvlpp\Metrics\Analyzers;
 
 use Dvlpp\Metrics\Metric;
 use Illuminate\Support\Collection;
+use Dvlpp\Metrics\TimeInterval;
 
 class UniqueVisitorAnalyzer extends Analyzer
 {
 
-    public function compile(Collection $visits)
+    public function compile(Collection $visits, TimeInterval $interval)
     {
         $data = [];
 
@@ -26,7 +27,7 @@ class UniqueVisitorAnalyzer extends Analyzer
 
     // This operation will add two array returned by the compile() method
     // then return a consolidated array. 
-    public function consolidate(Collection $metrics)
+    public function consolidate(Collection $metrics, TimeInterval $interval)
     {
         $uniqueVisitors = 0;
 

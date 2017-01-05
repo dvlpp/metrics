@@ -8,6 +8,7 @@ use Dvlpp\Metrics\Metric;
 use Jenssegers\Agent\Agent;
 use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Repositories\VisitRepository;
+use Dvlpp\Metrics\TimeInterval;
 
 class VisitorAnalyzer extends Analyzer
 {
@@ -43,7 +44,7 @@ class VisitorAnalyzer extends Analyzer
      * @param  Collection $visits
      * @return array
      */
-    public function compile(Collection $visits)
+    public function compile(Collection $visits, TimeInterval $interval)
     {
         $count = 0;
         $sessionStack = [];
@@ -85,7 +86,7 @@ class VisitorAnalyzer extends Analyzer
      * @param  Collection $metrics 
      * @return array
      */
-    public function consolidate(Collection $metrics)
+    public function consolidate(Collection $metrics, TimeInterval $interval)
     {
         $count = 0;
 

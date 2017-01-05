@@ -14,7 +14,7 @@ class UserAgentAnalyzerTest extends MetricTestCase
     {
         $analyzer = new UserAgentAnalyzer();
         $visits = $this->generateVisits(100);
-        $result = $analyzer->compile($visits);
+        $result = $analyzer->compile($visits, $this->getDummyTimeInterval());
         $this->assertEquals(100, array_sum($result['categories'])); 
     }
 
@@ -23,14 +23,14 @@ class UserAgentAnalyzerTest extends MetricTestCase
     {
         $analyzer = new UserAgentAnalyzer();
         $visits = $this->generateVisits(50);
-        $resultA = [UserAgentAnalyzer::class => $analyzer->compile($visits)];
+        $resultA = [UserAgentAnalyzer::class => $analyzer->compile($visits, $this->getDummyTimeInterval())];
         $visits = $this->generateVisits(50);
-        $resultB = [UserAgentAnalyzer::class => $analyzer->compile($visits)];
+        $resultB = [UserAgentAnalyzer::class => $analyzer->compile($visits, $this->getDummyTimeInterval())];
         $metrics = new Collection([
             $this->generateMetric($resultA, 50),
             $this->generateMetric($resultB, 50),
         ]);
-        $result = $analyzer->consolidate($metrics);
+        $result = $analyzer->consolidate($metrics, $this->getDummyTimeInterval());
         $this->assertEquals(100, array_sum($result['categories']));
     }
 
@@ -89,6 +89,11 @@ class UserAgentAnalyzerTest extends MetricTestCase
         $this->assertEquals($b,$c);
     }
 
+    protected function getDummyTimeInterval()
+    {
+        return new TimeInterval(Carbon::now(), Carbon::now());
+    }
+
     /**
      * Generate Metric Object
      * 
@@ -98,7 +103,7 @@ class UserAgentAnalyzerTest extends MetricTestCase
     protected function generateMetric(array $results, $count)
     {
         return Metric::create(
-            new TimeInterval(Carbon::now(), Carbon::now()),
+            $this->getDummyTimeInterval(),
             $results,
             $count
         );

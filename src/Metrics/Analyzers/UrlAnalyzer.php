@@ -3,11 +3,12 @@
 namespace Dvlpp\Metrics\Analyzers;
 
 use Illuminate\Support\Collection;
+use Dvlpp\Metrics\TimeInterval;
 
 class UrlAnalyzer extends Analyzer
 {
 
-    public function compile(Collection $visits)
+    public function compile(Collection $visits, TimeInterval $interval)
     {
         $stack = [];
 
@@ -31,7 +32,7 @@ class UrlAnalyzer extends Analyzer
         return preg_replace('/\?.*/', '', $url);
     }
 
-    public function consolidate(Collection $metrics)
+    public function consolidate(Collection $metrics, TimeInterval $interval)
     {
         $newStatistics = [];
         

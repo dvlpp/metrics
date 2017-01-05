@@ -26,7 +26,7 @@ class UniqueVisitorAnalyzerTest extends MetricTestCase
         $visits = $this->visits->getByTimeInterval($interval);
         $count = count($interval->toHours()) * 5;
         $this->assertEquals($count, count($visits));
-        $result = $analyzer->compile($visits);
+        $result = $analyzer->compile($visits, $interval);
         $this->assertEquals($count, $result["unique-visitors"]);
     }
 
@@ -37,12 +37,12 @@ class UniqueVisitorAnalyzerTest extends MetricTestCase
         $interval = $this->getLastMonth();
         // Generate a collection of metrics from visits and an analyzer
         $metrics = $this->createMetrics($analyzer, $interval, 10000);
-        $stats = $analyzer->consolidate($metrics);
+        $stats = $analyzer->consolidate($metrics, $interval);
         $this->assertEquals(10000, $stats["unique-visitors"]);
 
         // We'll add an empty record to the collection to ensure it works correctly
         $metrics->push(Metric::create($interval, [], 0));
-        $stats = $analyzer->consolidate($metrics);
+        $stats = $analyzer->consolidate($metrics, $interval);
         $this->assertEquals(10000, $stats["unique-visitors"]);
     }
 

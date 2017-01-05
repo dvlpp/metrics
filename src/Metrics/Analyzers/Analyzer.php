@@ -6,6 +6,7 @@ use Dvlpp\Metrics\Metric;
 use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Contracts\AnalyzerInterface;
 use Dvlpp\Metrics\Contracts\ConsoliderInterface;
+use Dvlpp\Metrics\TimeInterval;
 
 abstract class Analyzer implements AnalyzerInterface, ConsoliderInterface {
 
@@ -15,7 +16,7 @@ abstract class Analyzer implements AnalyzerInterface, ConsoliderInterface {
      * @param  Collection $visits [description]
      * @return array
      */
-    abstract public function compile(Collection $visits);
+    abstract public function compile(Collection $visits, TimeInterval $interval);
 
 
     /**
@@ -24,6 +25,6 @@ abstract class Analyzer implements AnalyzerInterface, ConsoliderInterface {
      * @param  Collection $statistics
      * @return 
      */
-    abstract public function consolidate(Collection $metrics);
+    abstract public function consolidate(Collection $metrics, TimeInterval $interval);
 
 }

@@ -341,7 +341,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
 
         foreach($interval->toHours() as $hour) {
             $hourVisits = $this->visits->getByTimeInterval($hour);
-            $stats = $compiler->compile($hourVisits);
+            $stats = $compiler->compile($hourVisits, $interval);
             $metrics->push(Metric::create($hour, $stats, count($hourVisits)));
         }
         return $metrics;
