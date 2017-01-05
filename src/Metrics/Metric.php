@@ -69,9 +69,6 @@ class Metric
         $metric = new static;
         $metric->setStart($data['start']);
         $metric->setEnd($data['end']);
-        if(is_null($data['statistics'])) {
-            dd($data);
-        }
         $metric->setStatistics($data['statistics']);
         $metric->setCount($data['count']);
         $metric->setType($data['type']);

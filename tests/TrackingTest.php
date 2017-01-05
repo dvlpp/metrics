@@ -269,4 +269,26 @@ class TrackingTest extends MetricTestCase
         $this->assertEquals(1, VisitModel::count());
     }
 
+    /** @test */
+    public function we_can_add_custom_filters()
+    {
+        $manager = $this->app->make(Manager::class);
+        $manager->addFilter(function ($visit) {
+            return $visit->getStatusCode() != '200';
+        });
+
+        $router = $this->app->make('router');
+        $router->get('some_url', function() {
+            return 'ok';
+        });
+
+        // Query an url that will trigger a 404
+        $result = $this->get('/some_non_existing_url');
+        $this->assertEquals(0, VisitModel::count());
+
+        // Query an actual URL
+        $result = $this->get('/some_url');
+        $this->assertEquals(1, VisitModel::count());
+    }
+
 }

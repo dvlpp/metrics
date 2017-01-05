@@ -51,6 +51,11 @@ class Manager
     /**
      * @var array
      */
+    protected $filters = [];
+
+    /**
+     * @var array
+     */
     protected $pendingActions = [];
 
     /**
@@ -305,7 +310,8 @@ class Manager
     {
         foreach($this->providers as $provider) {
             if($provider instanceof Closure) {
-                $provider($this->visit);    
+                $visit = $this->visit;
+                $provider($visit);    
             }
             else {
                 $provider = $this->app->make($provider);
@@ -373,11 +379,35 @@ class Manager
 
     /**
      * Return true if the URL should not be logged as of user configuration
-     *
+     * or user defined filter
+     * 
      * @param  Request $request
      * @return boolean     
      */
     public function isFiltered(Request $request)
+    {
+        if($this->isFilteredInConfig($request)) {
+            return true;
+        }
+
+        $visit = $this->visit;
+
+        foreach($this->filters as $filter) {
+            if ($filter($visit) == true) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /** 
+     * Return true if the Requested url is filtered in metrics config
+     * 
+     * @param  Request $request
+     * @return boolean         
+     */
+    protected function isFilteredInConfig(Request $request)
     {
         $filteredUrls = $this->app->make('config')->get('metrics.filtered_urls');
 
@@ -387,6 +417,18 @@ class Manager
         else {
             return false;
         }
+    }
+
+    /**
+     * Add a function to wich will be passed the current visit,
+     * right before being saved. 
+     * 
+     * @param  Closure $filter
+     * @return  void
+     */
+    public function addFilter(Closure $filter)
+    {
+        $this->filters[] = $filter;
     }
 
 }
