@@ -6,15 +6,14 @@ use Dvlpp\Metrics\Metric;
 use Dvlpp\Metrics\Visit;
 use Dvlpp\Metrics\TimeInterval;
 use Dvlpp\Metrics\Repositories\VisitRepository;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Session\Middleware\StartSession; 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
-use Illuminate\Filesystem\ClassFinder;
-use Illuminate\Filesystem\Filesystem;
+//use Illuminate\Filesystem\ClassFinder;
+//use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Repositories\Eloquent\VisitModel;
@@ -23,8 +22,6 @@ use Dvlpp\Metrics\Compiler;
 
 abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
 {
-    use InteractsWithDatabase;
-
     protected $faker;
 
     public function __construct()
@@ -42,7 +39,9 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         $this->app['config']->set('database.default', 'sqlite');
         $this->app['config']->set('database.connections.sqlite.database', ':memory:');
         $this->app['config']->set('metrics.logging', true);
-        $this->migrateDatabase();
+        //$this->migrateDatabase();
+        $this->artisan('migrate', ['--force' => 'default']);
+        //$this->app[Kernel::class]->setArtisan(null);
         $this->addLoginRoute();
     }
 
@@ -56,7 +55,6 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         $app = require __DIR__ . '/../vendor/laravel/laravel/bootstrap/app.php';
 
         $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-
         $app->register(\Dvlpp\Metrics\MetricServiceProvider::class);
        
         return $app;
@@ -67,7 +65,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
      * 
      * @return void
      */
-    protected function migrateDatabase()
+    /*protected function migrateDatabase()
     {
         $migrationPaths = [
             __DIR__ . "/../src/database/migrations",
@@ -77,7 +75,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         foreach($migrationPaths as $path) {
             $this->migrateDatabaseFromPath($path);
         }
-    }
+    }*/
 
     /**
      * Run all database migrations from the specified path
@@ -85,7 +83,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
      * @param  string $path
      * @return void
      */
-    protected function migrateDatabaseFromPath($path)
+    /*protected function migrateDatabaseFromPath($path)
     {
         $fileSystem = new Filesystem;
         $classFinder = new ClassFinder;
@@ -97,7 +95,7 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
 
             (new $migrationClass)->up();
         }
-    }
+    }*/
 
     /**
      * Add a login route for testing purpose
@@ -269,9 +267,9 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
      * @param  string $cookieName
      * @return $this
      */
-    protected function dontSeeCookie($cookieName)
+    protected function dontSeeCookie($cookieName, $response)
     {
-        $headers = $this->response->headers;
+        $headers = $response->headers;
         $exist = false;
         foreach ($headers->getCookies() as $cookie) {
             if ($cookie->getName() === $cookieName) {
@@ -321,6 +319,27 @@ abstract class MetricTestCase extends Illuminate\Foundation\Testing\TestCase
         $end = Carbon::now()->subYear(1)->endOfYear();
 
         return new TimeInterval($start, $end, Metric::YEARLY);
+    }
+
+    /**
+     * Alias to Get
+     * 
+     * @return void
+     */
+    protected function visit($url)
+    {
+        return $this->get($url);
+    }
+
+    protected function seeInDatabase($table, $constraints)
+    {
+        return $this->assertDatabaseHas($table, $constraints);
+    }
+
+
+    protected function dontSeeInDatabase($table, $constraints)
+    {
+        return $this->assertDatabaseMissing($table, $constraints);
     }
 
     /**

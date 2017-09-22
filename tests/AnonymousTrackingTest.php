@@ -30,7 +30,7 @@ class AnonymousTrackingTest extends MetricTestCase
         });
         $response = $this->visit("anonymous");
         $this->assertTrue($manager->visit()->isAnonymous());
-        $this->seeCookie($this->app['config']->get('metrics.anonymous_cookie_name'));
+        $response->assertCookie($this->app['config']->get('metrics.anonymous_cookie_name'));
     }
 
     /** @test */
@@ -43,7 +43,7 @@ class AnonymousTrackingTest extends MetricTestCase
         });
         $response = $this->visit("/anonymous");
         $this->assertFalse($manager->visit()->isAnonymous());
-        $this->seeCookie($this->app['config']->get('metrics.cookie_name'));
+        $response->asserTCookie($this->app['config']->get('metrics.cookie_name'));
     }
 
     /** @test */
@@ -62,7 +62,8 @@ class AnonymousTrackingTest extends MetricTestCase
         $result = $this->call('GET', '/anonymous', [], $cookies);
         $this->assertTrue($manager->visit()->isAnonymous());
         $this->assertNotEquals($manager->visit()->getCookie(), $cookies[$cookieName]);
-        $this->seeCookie($this->app['config']->get('metrics.anonymous_cookie_name'));
+        $result->assertCookie($this->app['config']->get('metrics.anonymous_cookie_name'));
+        
         $this->dontSeeInDatabase('metric_visits', [
             'cookie' => $cookies[$cookieName],
         ]);
@@ -87,7 +88,7 @@ class AnonymousTrackingTest extends MetricTestCase
         $result = $this->call('GET', 'anonymous', [], $cookies);
         $this->assertFalse($manager->visit()->isAnonymous());
         $this->assertNotEquals($manager->visit()->getCookie(), $cookies[$cookieName]);
-        $this->seeCookie($this->app['config']->get('metrics.cookie_name'));
+        $result->assertCookie($this->app['config']->get('metrics.cookie_name'));
         $this->dontSeeInDatabase('metric_visits', [
             'cookie' => $cookies[$cookieName],
         ]);

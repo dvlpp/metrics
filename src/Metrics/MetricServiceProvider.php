@@ -36,11 +36,13 @@ class MetricServiceProvider extends ServiceProvider {
      */
     public function boot()
     {
-
+        // Regiter migrations
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        
         // Register your migration's publisher
-        $this->publishes([
+        /*$this->publishes([
             __DIR__.'/../database/migrations/' => base_path('/database/migrations')
-        ], 'migrations');
+        ], 'migrations');*/
         
         // Publish your config
         $this->publishes([
