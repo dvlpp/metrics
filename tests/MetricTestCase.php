@@ -12,8 +12,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factory as EloquentFactory;
-//use Illuminate\Filesystem\ClassFinder;
-//use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Repositories\Eloquent\VisitModel;

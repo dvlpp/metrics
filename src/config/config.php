@@ -4,10 +4,21 @@ return [
     
     /*
     |--------------------------------------------------------------------------
+    | Custom database connection
+    |--------------------------------------------------------------------------
+    |
+    | Use a custom database conenction for metrics tables / models. If set to
+    | null, will use the default laravel connection.
+    |
+    */
+    'connection' => env('METRICS_CONNECTION', null),
+
+    /*
+    |--------------------------------------------------------------------------
     | Enable tracking
     |--------------------------------------------------------------------------
     |
-    | This option globally enable / disable tracking 
+    | This option globally enable / disable tracking.
     |
     */
     'enable' => env('METRICS_TRACKING', true),

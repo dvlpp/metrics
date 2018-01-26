@@ -309,6 +309,8 @@ class VisitEloquentRepository implements VisitRepository
      */
     protected function getQueryBuilder()
     {
-        return $this->database->table('metric_visits');
+        $connection = config('metrics.connection');
+        
+        return $this->database->connection($connection)->table('metric_visits');
     }
 }
