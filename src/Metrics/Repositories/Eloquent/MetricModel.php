@@ -20,4 +20,13 @@ class MetricModel extends Model
         'statistics' => 'array',
     ];
     
+    /**
+     * Get the current connection name for the model.
+     *
+     * @return string
+     */
+    public function getConnectionName()
+    {
+        return config('metrics.connection');
+    }
 }
