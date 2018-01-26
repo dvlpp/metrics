@@ -7,11 +7,11 @@ use Illuminate\Support\Collection;
 use Dvlpp\Metrics\Exceptions\MetricException;
 use Dvlpp\Metrics\Repositories\MetricRepository;
 use Dvlpp\Metrics\Repositories\VisitRepository;
-use Dvlpp\Metrics\Tools\LogToConsoleTrait;
+use Code16\WriteToConsole\WriteToConsole;
 
 class Updater 
 {
-    use LogToConsoleTrait;
+    use WriteToConsole;
 
     /**
      * @var MetricRepository
