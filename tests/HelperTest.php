@@ -15,6 +15,7 @@ class HelperTest extends MetricTestCase {
     public function we_can_call_action_function()
     {
         metrics_action(new AcmeAction('test'));
+        $this->assertTrue(true);
     }
 
     /** @test */

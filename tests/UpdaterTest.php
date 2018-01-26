@@ -110,15 +110,24 @@ class UpdaterTest extends MetricTestCase
     {
         $interval = $this->getLastMonth();
         $dayCount = count($interval->toDays());
-
+        
         // Create 2 visits, each hour
         $this->createVisitsInEveryTimeInterval($interval, 2);
         $this->updater->update();
 
-        $metricCount = $dayCount * 24 + $dayCount + 1;
+        
+        $date = Carbon::now();
+        $month = $date->format('m'); 
+
+        // if current month is january, metrics will auto calculate yearly metrics, which
+        // will result on an additionnal metric 
+        $metricCount = $month == "01"
+            ? $dayCount * 24 + $dayCount + 2
+            : $dayCount * 24 + $dayCount + 1;
 
         $expectedPageView = count($interval->toHours()) * 2;
         $monthlyMetric = $this->repository->find($interval);
+
         $this->assertNotNull($monthlyMetric);
         $this->assertEquals($expectedPageView, $monthlyMetric->getCount());
         $this->assertCount($metricCount, $this->repository->all());
@@ -147,6 +156,7 @@ class UpdaterTest extends MetricTestCase
     public function we_can_update_metrics_without_any_visit()
     {
         $this->updater->update();
+        $this->assertTrue(true);
     }
 
     /** @test */

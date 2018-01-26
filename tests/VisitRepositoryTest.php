@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Dvlpp\Metrics\TimeInterval;
 use Dvlpp\Metrics\Repositories\Eloquent\VisitModel;
+use Dvlpp\Metrics\Visit;
 
 class VisitRepositoryTest extends MetricTestCase
 {
@@ -73,5 +74,6 @@ class VisitRepositoryTest extends MetricTestCase
         $visit = VisitModel::first();
         $cookie = $visit->cookie;
         $visit = $this->repository->oldestVisitForCookie($cookie);
+        $this->assertInstanceOf(Visit::class, $visit);
     }
 }

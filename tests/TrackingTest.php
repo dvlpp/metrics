@@ -142,6 +142,7 @@ class TrackingTest extends MetricTestCase
         $manager->setTrackingOff();
         $manager->action(new AcmeAction('test'));
         $manager->markPreviousUserVisits(1);
+        $this->assertTrue(true);
     }
 
     /** @test */
